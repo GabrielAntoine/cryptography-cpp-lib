@@ -60,11 +60,11 @@ CMakeUserPresets.json
 
 ### VisualStudioCode ###
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
+# !.vscode/settings.json
+# !.vscode/tasks.json
+# !.vscode/launch.json
+# !.vscode/extensions.json
+# !.vscode/*.code-snippets
 
 # Local History for Visual Studio Code
 .history/
@@ -78,3 +78,6 @@ CMakeUserPresets.json
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,cmake,ninja,c++
+
+# build directory
+build
