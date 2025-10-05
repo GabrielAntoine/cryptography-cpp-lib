@@ -1,14 +1,14 @@
-#include "DesSecretKey.h"
-#include "tables.h"
+#include "DESSecretKey.h"
+#include "DESTables.h"
 
-DesSecretKey::DesSecretKey(const uint64_t key): key(key) {
+DESSecretKey::DESSecretKey(const uint64_t key): key(key) {
 }
 
-uint64_t DesSecretKey::getKey() const {
+uint64_t DESSecretKey::getKey() const {
     return key;
 }
 
-uint64_t DesSecretKey::getKey56() {
+uint64_t DESSecretKey::getKey56() {
     if (!areRoundKeysCalculated) {
         calculateRoundKeys();
     }
@@ -16,7 +16,7 @@ uint64_t DesSecretKey::getKey56() {
     return key56;
 }
 
-uint64_t DesSecretKey::getRoundKey(const int roundNumber) {
+uint64_t DESSecretKey::getRoundKey(const int roundNumber) {
     if (!areRoundKeysCalculated) {
         calculateRoundKeys();
     }
@@ -25,7 +25,7 @@ uint64_t DesSecretKey::getRoundKey(const int roundNumber) {
 }
 
 
-void DesSecretKey::calculateRoundKeys() {
+void DESSecretKey::calculateRoundKeys() {
     // Remove the 8 useless bits from the 64 bits key
     key56 = permuteBitsByTable(key, pc1Table);
     uint64_t baseKey = key56;

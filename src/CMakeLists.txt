@@ -1,7 +1,10 @@
-add_subdirectory(algorithms/des)
+add_library(cryptography_cpp_lib STATIC
+    DES/DES.cpp
+    DESede/DESede.cpp
+    DES/DESSecretKey.cpp
+    DESede/DESedeSecretKey.cpp
+)
 
-add_library(cryptography_cpp_lib INTERFACE)
-
-target_link_libraries(cryptography_cpp_lib INTERFACE
-    des
+target_include_directories(cryptography_cpp_lib PUBLIC
+    ${PROJECT_SOURCE_DIR}/include
 )

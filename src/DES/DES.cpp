@@ -2,8 +2,8 @@
 #include <cstdint>
 #include <array>
 
-#include "tables.h"
-#include "des.h"
+#include "DESTables.h"
+#include "DES.h"
 
 uint32_t mangler(const uint32_t bits, const uint64_t roundKey) {
     // Expansion from 32 bits to 48 bits
@@ -27,7 +27,7 @@ uint32_t mangler(const uint32_t bits, const uint64_t roundKey) {
     return permuteBitsByTable(sboxedBits, pbox);
 }
 
-uint64_t encryptDes(uint64_t plainBits, DesSecretKey &key, bool encrypt) {
+uint64_t encryptDES(uint64_t plainBits, DESSecretKey key, bool encrypt) {
     // Initial permutation
     const uint64_t initiallyPermutedBytes = permuteBitsByTable(plainBits, initialPermutationTable);
     uint32_t leftHalf = initiallyPermutedBytes >> 32;
