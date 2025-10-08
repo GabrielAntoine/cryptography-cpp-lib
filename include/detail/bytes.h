@@ -4,10 +4,8 @@
 
 #include <array>
 #include <cstddef>
-#include <span>
-#include <concepts>
 #include <functional>
-#include <iostream>
+#include <ostream>
 #include <bitset>
 #include <cstdint>
 
