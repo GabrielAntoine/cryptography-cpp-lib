@@ -1,5 +1,5 @@
-add_executable(test_app 
-    test-des.cpp
+add_executable(test 
+    test.cpp
 )
 
-target_link_libraries(test_app PRIVATE cryptography_cpp_lib)
+target_link_libraries(test PRIVATE cryptography_cpp_lib)
