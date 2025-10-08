@@ -2,6 +2,8 @@
 // Then, it adds all the bitwise operators such as &, |, ^, ~, <<, >>, rotr, rotl and maybe more.
 // The operations on two ByteArray work so that the output array will have the size of the smallest array.
 
+// TODO: Add arithmetic operations (if needed)
+
 #include <array>
 #include <cstddef>
 #include <functional>
@@ -11,6 +13,8 @@
 
 template<size_t size>
 using ByteArray = std::array<std::byte, size>;
+
+constexpr uint8_t bitsPerByte = 8;
 
 // Additionnal operators to display the bytes on screen
 
@@ -86,10 +90,14 @@ ByteArray<size>& operator^=(ByteArray<size> &left, const ByteArray<size> &right)
 
 // LEFT SHIFT, RIGHT SHIFT, LEFT CIRCULAR SHIFT, RIGHT CIRCULAR SHIFT
 
-constexpr uint8_t bitsPerByte = 8;
+template <size_t size, typename IntegerType>
+ByteArray<size> operator>>(const ByteArray<size> &bytes, const IntegerType shift);
 
 template <size_t size, typename IntegerType>
 ByteArray<size> operator<<(const ByteArray<size> &bytes, const IntegerType shift) {
+    if (shift < 0) {
+        return bytes >> (-shift);
+    }
 
     const std::uint8_t bitsInTheLeftBlock  = shift % bitsPerByte;
     const std::uint8_t bitsInTheRightBlock = bitsPerByte - bitsInTheLeftBlock;
@@ -116,6 +124,9 @@ ByteArray<size> operator<<(const ByteArray<size> &bytes, const IntegerType shift
 
 template <size_t size, typename IntegerType>
 ByteArray<size> operator>>(const ByteArray<size> &bytes, const IntegerType shift) {
+    if (shift < 0) {
+        return bytes << (-shift);
+    }
 
     const std::uint8_t bitsInTheRightBlock = shift % bitsPerByte;
     const std::uint8_t bitsInTheLeftBlock  = bitsPerByte - bitsInTheRightBlock;
