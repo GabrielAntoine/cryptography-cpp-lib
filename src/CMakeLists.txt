@@ -6,6 +6,7 @@ add_library(cryptography_cpp_lib STATIC
 )
 
 target_include_directories(cryptography_cpp_lib 
-    PUBLIC  ${PROJECT_SOURCE_DIR}/include
+    PUBLIC ${PROJECT_SOURCE_DIR}/include
     PUBLIC ${PROJECT_SOURCE_DIR}/include/detail # In public for development purposes
+    PUBLIC ${PROJECT_SOURCE_DIR}/include/template
 )
