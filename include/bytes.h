@@ -1,3 +1,5 @@
+#pragma once
+
 // This file provides the alias type "ByteArray<N>" which is equivalent to std::array<std::byte, N>.
 // Then, it adds all the bitwise operators such as &, |, ^, ~, <<, >>, rotr, rotl and maybe more.
 // The operations on two ByteArray work so that the output array will have the size of the smallest array.
@@ -7,31 +9,20 @@
 #include <array>
 #include <cstddef>
 #include <functional>
-#include <ostream>
-#include <bitset>
 #include <cstdint>
 
 template<size_t size>
 using ByteArray = std::array<std::byte, size>;
 
-constexpr uint8_t bitsPerByte = 8;
+constexpr uint8_t BITS_PER_BYTE = 8;
 
-// Additionnal operators to display the bytes on screen
 
-std::ostream& operator<<(std::ostream& os, std::byte b) {
-    return os << std::bitset<8>(std::to_integer<int>(b));
-}
 
-template <size_t size>
-std::ostream& operator<<(std::ostream& os, const ByteArray<size> &bytes) {
-    for (auto byte : bytes) {
-        os << byte << '.';
-    }
 
-    return os;
-}
 
-// AND, OR, XOR, NOT
+// ===================================================================================
+// SECTION : Operators &  |  ^  ~
+// ===================================================================================
 
 template <size_t leftSize, size_t rightSize>
 ByteArray<std::min(leftSize, rightSize)> doBytesToBytesOperation(
@@ -88,7 +79,13 @@ ByteArray<size>& operator^=(ByteArray<size> &left, const ByteArray<size> &right)
     return left = left ^ right;
 }
 
-// LEFT SHIFT, RIGHT SHIFT, LEFT CIRCULAR SHIFT, RIGHT CIRCULAR SHIFT
+
+
+
+
+// ===================================================================================
+// SECTION : Operators <<  >>
+// ===================================================================================
 
 template <size_t size, typename IntegerType>
 ByteArray<size> operator>>(const ByteArray<size> &bytes, const IntegerType shift);
@@ -99,9 +96,9 @@ ByteArray<size> operator<<(const ByteArray<size> &bytes, const IntegerType shift
         return bytes >> (-shift);
     }
 
-    const std::uint8_t bitsInTheLeftBlock  = shift % bitsPerByte;
-    const std::uint8_t bitsInTheRightBlock = bitsPerByte - bitsInTheLeftBlock;
-    const IntegerType  blockShift          = shift / bitsPerByte;
+    const std::uint8_t bitsInTheLeftBlock  = shift % BITS_PER_BYTE;
+    const std::uint8_t bitsInTheRightBlock = BITS_PER_BYTE - bitsInTheLeftBlock;
+    const IntegerType  blockShift          = shift / BITS_PER_BYTE;
     ByteArray<size> output{};
 
     for (int i = 0; i < size; i++) {
@@ -128,9 +125,9 @@ ByteArray<size> operator>>(const ByteArray<size> &bytes, const IntegerType shift
         return bytes << (-shift);
     }
 
-    const std::uint8_t bitsInTheRightBlock = shift % bitsPerByte;
-    const std::uint8_t bitsInTheLeftBlock  = bitsPerByte - bitsInTheRightBlock;
-    const IntegerType  blockShift          = shift / bitsPerByte; 
+    const std::uint8_t bitsInTheRightBlock = shift % BITS_PER_BYTE;
+    const std::uint8_t bitsInTheLeftBlock  = BITS_PER_BYTE - bitsInTheRightBlock;
+    const IntegerType  blockShift          = shift / BITS_PER_BYTE; 
     ByteArray<size> output{};
 
     for (int i = size - 1; i >= 0; i--) {
@@ -166,7 +163,7 @@ ByteArray<size> rotr(const ByteArray<size> &bytes, const IntegerType shift);
 
 template <size_t size, typename IntegerType>
 ByteArray<size> rotl(const ByteArray<size> &bytes, const IntegerType shift) {
-    const size_t bitsCount = size * bitsPerByte;
+    const size_t bitsCount = size * BITS_PER_BYTE;
     const IntegerType localShift = shift % bitsCount;
 
     if (localShift == 0) {
@@ -180,7 +177,7 @@ ByteArray<size> rotl(const ByteArray<size> &bytes, const IntegerType shift) {
 
 template <size_t size, typename IntegerType>
 ByteArray<size> rotr(const ByteArray<size> &bytes, const IntegerType shift) {
-    const size_t bitsCount = size * bitsPerByte;
+    const size_t bitsCount = size * BITS_PER_BYTE;
     const IntegerType localShift = shift % bitsCount;
 
     if (localShift == 0) {
@@ -190,4 +187,17 @@ ByteArray<size> rotr(const ByteArray<size> &bytes, const IntegerType shift) {
     } else {
         return rotr(bytes, -localShift);
     }
+}
+
+
+
+
+
+// ===================================================================================
+// SECTION : Utils
+// ===================================================================================
+
+template<size_t size>
+bool bitAt(const ByteArray<size> bytes, std::size_t index) {
+    return (bytes[index / BITS_PER_BYTE] >> (index % BITS_PER_BYTE)) & 1;
 }

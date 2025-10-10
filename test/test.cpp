@@ -5,6 +5,7 @@
 #include "DESede.h"
 #include "DES.h"
 #include "bytes.h"
+#include "bytes_stream.h"
 
 int main() {
     DESSecretKey key(0x133457799BBCDFF1);
@@ -29,9 +30,19 @@ int main() {
     // std::cout << "Decrypted text is :   " << encryptDESede(encryptDESede(plainText, key3), key3, false) << "\n\n";
 
     std::array<std::byte, 3> a{std::byte(85), std::byte(240), std::byte(23)}, b{std::byte(183), std::byte(5), std::byte(6)};
+
+    ByteArray<7> c {
+        std::byte(0b01100111),
+        std::byte(0b01100001),
+        std::byte(0b01100010),
+        std::byte(0b01110010),
+        std::byte(0b01101001),
+        std::byte(0b01100101),
+        std::byte(0b01101100)
+    };
     
-    std::cout << "a              : " << a << '\n';
-    std::cout << "a left shifted : " << rotl(a, 10) << '\n'; 
+    std::cout << ByteArrayDisplayMode::HEXA << "a              : " << c << '\n';
+    // std::cout << "a left shifted : " << rotl(a, 10) << '\n'; 
 
 
     return 0;
