@@ -2,7 +2,7 @@
 
 #include "bytes.h"
 
-template <typename T, size_t size>
+template <typename T>
 concept Key = requires(T t) {
-    { t.getBytes() } -> std::same_as<ByteArray<size>>;
+    { t.getBytes() } -> std::same_as<ByteArray>;
 };

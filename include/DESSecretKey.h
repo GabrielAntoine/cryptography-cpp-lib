@@ -2,22 +2,34 @@
 
 #include <cstdint>
 #include <array>
+#include "bytes.h"
 
 class DESSecretKey {
-    uint64_t key;
-    uint64_t key56 = 0;
-    std::array<uint64_t, 16> roundKeys{};
-    bool areRoundKeysCalculated = false;
+public:
 
-    static constexpr std::array<uint8_t, 16> shiftsByRound = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
+    static constexpr uint8_t ROUND_COUNT    = 16;
+    static constexpr uint8_t KEY_SIZE       = 64;
+    static constexpr uint8_t REAL_KEY_SIZE  = 56;
+    static constexpr uint8_t ROUND_KEY_SIZE = 48;
+    static constexpr uint8_t HALF_KEY_SIZE  = 28;
+    static constexpr std::array<uint8_t, ROUND_COUNT> SHIFTS_BY_ROUND = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
+
+    using KeyBytes = ByteSpan<KEY_SIZE / CHAR_BIT>;
+    using RoundKey = std::bitset<ROUND_KEY_SIZE>;
+    using Key      = std::bitset<KEY_SIZE>;
+
+private:
+
+    Key key;
+    std::array<RoundKey, ROUND_COUNT> roundKeys;
 
 public:
-    explicit DESSecretKey(const uint64_t key);
 
-    [[nodiscard]]
-    uint64_t getKey() const;
-    uint64_t getKey56();
-    uint64_t getRoundKey(const int roundNumber);
+    DESSecretKey() = default;
+    DESSecretKey(KeyBytes key);
+
+    ByteArray getBytes() const;
+    RoundKey getRoundKey(const int roundNumber) const;
 
 private:    
     void calculateRoundKeys();

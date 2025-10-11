@@ -3,6 +3,8 @@
 #include <array>
 #include <cstdint>
 
+#include "bytes.h"
+
 constexpr std::array<uint8_t, 56> pc1Table = {
     57, 49, 41, 33, 25, 17,  9,  1, 
     58, 50, 42, 34, 26, 18, 10,  2, 
@@ -121,15 +123,15 @@ constexpr std::array<uint8_t, 32> pbox = {
     19, 13, 30,  6, 22, 11,  4, 25
 };
 
-template <typename IntType, typename PermutatedIntType = IntType, size_t tableSize>
-PermutatedIntType permuteBitsByTable(IntType bits, const std::array<uint8_t, tableSize> &permutationTable, int8_t bitsLength = sizeof(IntType) * 8) {
-    PermutatedIntType permutatedBits = 0;
+template <size_t inputSize, size_t outputSize>
+std::bitset<outputSize> permuteBitsByTable(const std::bitset<inputSize> &bits, const std::array<uint8_t, outputSize> &permutationTable) {
+    std::bitset<outputSize> permutatedBits;
 
-    for (int i = 0; i < tableSize; i++) {
+    for (int i = 0; i < outputSize; i++) {
         const size_t indexFromTheLeft = permutationTable[i];
-        size_t indexFromTheRight = bitsLength - indexFromTheLeft;
-        size_t bit = (bits >> indexFromTheRight) & 1;
-        permutatedBits = (permutatedBits << 1) | bit;
+        size_t indexFromTheRight = inputSize - indexFromTheLeft;
+        bool bit = ((bits >> indexFromTheRight) & std::bitset<inputSize>(1))[0];
+        permutatedBits = (permutatedBits << 1) | std::bitset<outputSize>(bit);
     }
 
     return permutatedBits;

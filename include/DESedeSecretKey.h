@@ -7,10 +7,23 @@
 #include "DESSecretKey.h"
 
 class DESedeSecretKey {
-    std::array<uint64_t, 3> key;
+public:
+    using KeyBytes = ByteSpan<DESSecretKey::KEY_SIZE * 3 / CHAR_BIT>;
+
+private:
+
+    DESSecretKey DesKey1;
+    DESSecretKey DesKey2;
+    DESSecretKey DesKey3;
 
 public:
-    explicit DESedeSecretKey(const std::array<uint64_t, 3> &key);
 
-    DESSecretKey getDesKey(const int i) const;
+    DESedeSecretKey() = default;
+    DESedeSecretKey(KeyBytes key);
+
+    // Key getBytes() const; TODO
+
+    const DESSecretKey &getDesKey1() const;
+    const DESSecretKey &getDesKey2() const;
+    const DESSecretKey &getDesKey3() const;
 };

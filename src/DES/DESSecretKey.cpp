@@ -1,51 +1,41 @@
+#include <cassert>
+#include <bit>
+#include <iostream>
+
+#include "bytes.h"
 #include "DESSecretKey.h"
 #include "DESTables.h"
 
-DESSecretKey::DESSecretKey(const uint64_t key): key(key) {
+DESSecretKey::DESSecretKey(KeyBytes key): key(toBitset(key)) {
+    calculateRoundKeys();
 }
 
-uint64_t DESSecretKey::getKey() const {
-    return key;
+ByteArray DESSecretKey::getBytes() const {
+    return toByteArray(key);
 }
 
-uint64_t DESSecretKey::getKey56() {
-    if (!areRoundKeysCalculated) {
-        calculateRoundKeys();
-    }
-
-    return key56;
-}
-
-uint64_t DESSecretKey::getRoundKey(const int roundNumber) {
-    if (!areRoundKeysCalculated) {
-        calculateRoundKeys();
-    }
-
+DESSecretKey::RoundKey DESSecretKey::getRoundKey(const int roundNumber) const {
     return roundKeys[roundNumber - 1];
 }
 
-
 void DESSecretKey::calculateRoundKeys() {
     // Remove the 8 useless bits from the 64 bits key
-    key56 = permuteBitsByTable(key, pc1Table);
-    uint64_t baseKey = key56;
+    std::bitset<REAL_KEY_SIZE> baseKey = permuteBitsByTable(key, pc1Table);
 
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < ROUND_COUNT; i++) {
         // Divide the key in two 28 bits parts
-        uint32_t leftKeyPart = baseKey >> 28;
-        uint32_t rightKeyPart = baseKey & 0x0FFFFFFF;
+        std::bitset<HALF_KEY_SIZE> leftKeyPart  = sliceBitset<HALF_KEY_SIZE>(baseKey, HALF_KEY_SIZE);
+        std::bitset<HALF_KEY_SIZE> rightKeyPart = sliceBitset<HALF_KEY_SIZE>(baseKey);
 
         // Left circular shift
-        const uint8_t shift = shiftsByRound[i];
-        leftKeyPart = ((leftKeyPart << shift) & 0x0FFFFFFF) | (leftKeyPart >> (28 - shift));
-        rightKeyPart = ((rightKeyPart << shift) & 0x0FFFFFFF) | (rightKeyPart >> (28 - shift));
-        baseKey = (static_cast<uint64_t>(leftKeyPart) << 28) | rightKeyPart;
+        const uint8_t shift = SHIFTS_BY_ROUND[i];
+        leftKeyPart = rotl(leftKeyPart, shift);
+        rightKeyPart = rotl(rightKeyPart, shift);
+        baseKey = (extendBitset<HALF_KEY_SIZE>(leftKeyPart) << HALF_KEY_SIZE) | extendBitset<HALF_KEY_SIZE>(rightKeyPart);
 
         // Compressed permutation
-        uint64_t roundKey = permuteBitsByTable(baseKey, pc2Table, 56);
+        RoundKey roundKey = permuteBitsByTable(baseKey, pc2Table);
 
         roundKeys[i] = roundKey;
     }
-
-    areRoundKeysCalculated = true;
 }

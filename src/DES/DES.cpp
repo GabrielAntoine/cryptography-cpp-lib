@@ -1,42 +1,48 @@
 #include <iostream>
 #include <cstdint>
 #include <array>
+#include <cstddef>
 
 #include "DESTables.h"
 #include "DES.h"
+#include "bytes_stream.h"
 
-uint32_t mangler(const uint32_t bits, const uint64_t roundKey) {
+void DES::setKey(const DESSecretKey &key) {
+    this->key = key;
+}
+
+DES::HalfBlock DES::mangler(const HalfBlock block, DESSecretKey::RoundKey roundKey) const {
     // Expansion from 32 bits to 48 bits
-    uint64_t expandedBits = permuteBitsByTable<uint32_t, uint64_t>(bits, ebox);
+    HalfBlockExtended expandedBits = permuteBitsByTable(block, ebox);
     
     // Xor with the round key
-    uint64_t keyifiedBits = expandedBits ^ roundKey;
+    HalfBlockExtended keyifiedBits = expandedBits ^ roundKey;
 
     // S-Boxes
-    uint32_t sboxedBits = 0;
-    for (int i = 0; i < 8; i++) {
-        
+    HalfBlock sboxedBits;
+    for (int i = 0; i < sboxes.size(); i++) {
         size_t firstBitOfTheBlockIndex = 47 - (i * 6);
-        uint8_t block = (keyifiedBits >> (firstBitOfTheBlockIndex - 5)) & 0b111111;
-        size_t row = ((block & 0b100000) >> 4) | (block & 1);
-        size_t column = (block >> 1) & 0b1111;
-        sboxedBits = (sboxedBits << 4) | sboxes[i][row][column];
+        SboxBlock block = sliceBitset<SBOX_BLOCK_SIZE>(keyifiedBits, firstBitOfTheBlockIndex - 5);
+        size_t row      = ((block & SboxBlock(0b100000)) >> 4 | block & SboxBlock(1)).to_ullong();
+        size_t column   = (block >> 1 & SboxBlock(0b1111)).to_ullong();
+        sboxedBits      = sboxedBits << 4 | HalfBlock(sboxes[i][row][column]);
     }
 
     // P-box
     return permuteBitsByTable(sboxedBits, pbox);
 }
 
-uint64_t encryptDES(uint64_t plainBits, DESSecretKey key, bool encrypt) {
+DES::Block DES::run(const Block plainBits, bool encrypt) const {
     // Initial permutation
-    const uint64_t initiallyPermutedBytes = permuteBitsByTable(plainBits, initialPermutationTable);
-    uint32_t leftHalf = initiallyPermutedBytes >> 32;
-    uint32_t rightHalf = initiallyPermutedBytes & (0xFFFFFFFF);
+    const Block initiallyPermutedBytes = permuteBitsByTable(plainBits, initialPermutationTable);
+    HalfBlock leftHalf = sliceBitset<HALF_BLOCK_SIZE>(initiallyPermutedBytes, HALF_BLOCK_SIZE);
+    HalfBlock rightHalf = sliceBitset<HALF_BLOCK_SIZE>(initiallyPermutedBytes);
 
+    
     
     // 16 rounds
     for (int i = 1; i <= 16; i++) {
-        const uint32_t oldRightHalf = rightHalf;
+        const HalfBlock oldRightHalf = rightHalf;
         int roundKeyIndex = i;
         if (!encrypt) {
             roundKeyIndex = 17 - i;
@@ -46,10 +52,18 @@ uint64_t encryptDES(uint64_t plainBits, DESSecretKey key, bool encrypt) {
     }
     
     // last swap
-    const uint64_t beforeEndBytes = (static_cast<uint64_t>(rightHalf) << 32) | leftHalf;
+    const Block beforeEndBytes = extendBitset<HALF_BLOCK_SIZE>(rightHalf) << 32 | extendBitset<HALF_BLOCK_SIZE>(leftHalf);
     
     // last permutation
-    const uint64_t encryptedBytes = permuteBitsByTable(beforeEndBytes, finalPermutationTable);
+    const Block encryptedBytes = permuteBitsByTable(beforeEndBytes, finalPermutationTable);
     
     return encryptedBytes;
+}
+
+DES::Block DES::encrypt(const Block plainBits) const {
+    return run(plainBits, true);
+}
+
+DES::Block DES::decrypt(const Block plainBits) const {
+    return run(plainBits, false);
 }
