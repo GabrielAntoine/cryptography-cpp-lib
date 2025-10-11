@@ -29,9 +29,9 @@ int main() {
     // std::cout << "Encrypted text is :   " << encryptDESede(plainText, key3) << "\n";
     // std::cout << "Decrypted text is :   " << encryptDESede(encryptDESede(plainText, key3), key3, false) << "\n\n";
 
-    std::array<std::byte, 3> a{std::byte(85), std::byte(240), std::byte(23)}, b{std::byte(183), std::byte(5), std::byte(6)};
+    ByteArray a{std::byte(85), std::byte(240), std::byte(23)}, b{std::byte(183), std::byte(5), std::byte(6)};
 
-    ByteArray<7> c {
+    ByteArray c {
         std::byte(0b01100111),
         std::byte(0b01100001),
         std::byte(0b01100010),
@@ -41,8 +41,12 @@ int main() {
         std::byte(0b01101100)
     };
     
-    std::cout << ByteArrayDisplayMode::HEXA << "a              : " << c << '\n';
-    // std::cout << "a left shifted : " << rotl(a, 10) << '\n'; 
+    std::cout << byteSeparator('-');
+    std::cout << ByteArrayDisplayMode::BINARY << "a              : " << a << '\n';
+    std::cout << ByteArrayDisplayMode::BINARY << "b              : " << b << '\n';
+    a = rotl(a, 10);
+    std::cout << "a left shifted : " << a << '\n'; 
+    std::cout << "a & b          : " << (a & b) << '\n';
 
 
     return 0;

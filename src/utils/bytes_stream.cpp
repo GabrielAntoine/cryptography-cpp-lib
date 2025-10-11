@@ -1,5 +1,3 @@
-#pragma once
-
 // This files allow multiple ways to visualize ByteArray
 
 #include "bytes.h"
@@ -37,8 +35,7 @@ std::ostream& operator<<(std::ostream& os, ByteArrayDisplayMode mode) {
     return os;
 }
 
-template <size_t size, typename Callback>
-void streamBytesWithSeparator(std::ostream& os, const ByteArray<size> &bytes, Callback streamOneByte, const char separator) {    
+void streamBytesWithSeparator(std::ostream& os, const ByteArray &bytes, ByteSreamCallback streamOneByte, const char separator) {    
     for (int i = 0; i < bytes.size() - 1; i++) {
         streamOneByte(os, bytes[i]);
         os << separator;
@@ -47,15 +44,13 @@ void streamBytesWithSeparator(std::ostream& os, const ByteArray<size> &bytes, Ca
     streamOneByte(os, bytes.back());
 }
 
-template <size_t size, typename Callback>
-void streamBytesWithoutSeparator(std::ostream& os, const ByteArray<size> &bytes, Callback streamOneByte) {    
+void streamBytesWithoutSeparator(std::ostream& os, const ByteArray &bytes, ByteSreamCallback streamOneByte) {    
     for (const auto byte : bytes) {
         streamOneByte(os, byte);
     }
 }
 
-template <size_t size, typename Callback>
-void streamBytesWithOrWithoutSeparator(std::ostream& os, const ByteArray<size> &bytes, Callback streamOneByte) {
+void streamBytesWithOrWithoutSeparator(std::ostream& os, const ByteArray &bytes, ByteSreamCallback streamOneByte) {
     const char separator = static_cast<char>(os.iword(separatorIndex));
     
     if (separator) {
@@ -65,15 +60,13 @@ void streamBytesWithOrWithoutSeparator(std::ostream& os, const ByteArray<size> &
     }
 }
 
-template <size_t size>
-void streamBinary(std::ostream& os, const ByteArray<size> &bytes) {
+void streamBinary(std::ostream& os, const ByteArray &bytes) {
     streamBytesWithOrWithoutSeparator(os, bytes, [](std::ostream& os, std::byte byte) {
          os << std::bitset<8>(std::to_integer<int>(byte));
     });
 }
 
-template <size_t size>
-void streamDecimal(std::ostream& os, const ByteArray<size> &bytes) {
+void streamDecimal(std::ostream& os, const ByteArray &bytes) {
     const char separator = static_cast<char>(os.iword(separatorIndex));
 
     streamBytesWithSeparator(os, bytes, [](std::ostream& os, std::byte byte) {
@@ -81,23 +74,20 @@ void streamDecimal(std::ostream& os, const ByteArray<size> &bytes) {
     }, separator ? separator : _ByteSeparator::DEFAULT);
 }
 
-template <size_t size>
-void streamHexa(std::ostream& os, const ByteArray<size> &bytes) {
+void streamHexa(std::ostream& os, const ByteArray &bytes) {
     streamBytesWithOrWithoutSeparator(os, bytes, [](std::ostream& os, std::byte byte) {
         os << std::format("{:02X}", std::to_integer<uint8_t>(byte));
     });
 }
 
-template <size_t size>
-void streamAscii(std::ostream& os, const ByteArray<size> &bytes) {
+void streamAscii(std::ostream& os, const ByteArray &bytes) {
     streamBytesWithoutSeparator(os, bytes, [](std::ostream& os, std::byte byte) {
         os << static_cast<char>(byte);
     });
 }
 
 // Stream bytes according to the current display mode and separator
-template <size_t size>
-std::ostream& operator<<(std::ostream& os, const ByteArray<size> &bytes) {
+std::ostream& operator<<(std::ostream& os, const ByteArray &bytes) {
     const auto mode = static_cast<ByteArrayDisplayMode>(os.iword(displayModeIndex));
 
     switch (mode) {

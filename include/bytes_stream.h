@@ -2,6 +2,10 @@
 
 // This files allow multiple ways to visualize ByteArray
 
+#include <functional>
+#include <ostream>
+#include <cstddef>
+
 #include "bytes.h"
 
 
@@ -32,6 +36,7 @@ enum ByteArrayDisplayMode {
     ASCII
 };
 
+using ByteSreamCallback = std::function<void(std::ostream&, std::byte)>;
 
 // ===================================================================================
 // SECTION : Output stream
@@ -50,29 +55,13 @@ _ByteSeparator noByteSeparator();
 // Used to effectively change the display mode
 std::ostream& operator<<(std::ostream& os, ByteArrayDisplayMode mode);
 
-template <size_t size, typename Callback>
-void streamBytesWithSeparator(std::ostream& os, const ByteArray<size> &bytes, Callback streamOneByte, const char separator);
-
-template <size_t size, typename Callback>
-void streamBytesWithoutSeparator(std::ostream& os, const ByteArray<size> &bytes, Callback streamOneByte);
-
-template <size_t size, typename Callback>
-void streamBytesWithOrWithoutSeparator(std::ostream& os, const ByteArray<size> &bytes, Callback streamOneByte);
-
-template <size_t size>
-void streamBinary(std::ostream& os, const ByteArray<size> &bytes);
-
-template <size_t size>
-void streamDecimal(std::ostream& os, const ByteArray<size> &bytes);
-
-template <size_t size>
-void streamHexa(std::ostream& os, const ByteArray<size> &bytes);
-
-template <size_t size>
-void streamAscii(std::ostream& os, const ByteArray<size> &bytes);
+void streamBytesWithSeparator(std::ostream& os, const ByteArray &bytes, ByteSreamCallback streamOneByte, const char separator);
+void streamBytesWithoutSeparator(std::ostream& os, const ByteArray &bytes, ByteSreamCallback streamOneByte);
+void streamBytesWithOrWithoutSeparator(std::ostream& os, const ByteArray &bytes, ByteSreamCallback streamOneByte);
+void streamBinary(std::ostream& os, const ByteArray &bytes);
+void streamDecimal(std::ostream& os, const ByteArray &bytes);
+void streamHexa(std::ostream& os, const ByteArray &bytes);
+void streamAscii(std::ostream& os, const ByteArray &bytes);
 
 // Stream bytes according to the current display mode and separator
-template <size_t size>
-std::ostream& operator<<(std::ostream& os, const ByteArray<size> &bytes);
-
-#include "bytes_stream.tpp"
+std::ostream& operator<<(std::ostream& os, const ByteArray &bytes);
