@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include "DESSecretKey.h"
+#include "Key.h"
 
 class DESedeSecretKey {
 public:
@@ -21,9 +22,11 @@ public:
     DESedeSecretKey() = default;
     DESedeSecretKey(KeyBytes key);
 
-    // Key getBytes() const; TODO
+    ByteArray getBytes() const;
 
     const DESSecretKey &getDesKey1() const;
     const DESSecretKey &getDesKey2() const;
     const DESSecretKey &getDesKey3() const;
 };
+
+static_assert(Key<DESedeSecretKey>);

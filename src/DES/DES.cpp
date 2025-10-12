@@ -7,11 +7,11 @@
 #include "DES.h"
 #include "bytes_stream.h"
 
-void DES::setKey(const DESSecretKey &key) {
+void DES::setKey(const SecretKey &key) {
     this->key = key;
 }
 
-DES::HalfBlock DES::mangler(const HalfBlock block, DESSecretKey::RoundKey roundKey) const {
+DES::HalfBlock DES::feistel(const HalfBlock block, SecretKey::RoundKey roundKey) const {
     // Expansion from 32 bits to 48 bits
     HalfBlockExtended expandedBits = permuteBitsByTable(block, ebox);
     
@@ -47,7 +47,7 @@ DES::Block DES::run(const Block plainBits, bool encrypt) const {
         if (!encrypt) {
             roundKeyIndex = 17 - i;
         }
-        rightHalf = mangler(rightHalf, key.getRoundKey(roundKeyIndex)) ^ leftHalf;
+        rightHalf = feistel(rightHalf, key.getRoundKey(roundKeyIndex)) ^ leftHalf;
         leftHalf = oldRightHalf;
     }
     

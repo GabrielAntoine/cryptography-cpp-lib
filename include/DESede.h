@@ -2,18 +2,23 @@
 
 #include "DESedeSecretKey.h"
 #include "DES.h"
+#include "BlockCipherAlgorithm.h"
 
 class DESede {
     public:
         static constexpr uint8_t BLOCK_SIZE = DES::BLOCK_SIZE;
+        using Block = DES::Block;
+        using SecretKey = DESedeSecretKey;
 
     private:
         DESedeSecretKey key;
 
-        DES::Block run(const DES::Block plainBits, bool encrypt) const;
+        Block run(const Block plainBits, bool encrypt) const;
 
     public:
-        void       setKey(const DESedeSecretKey &key);
-        DES::Block encrypt(const DES::Block plainBits) const;
-        DES::Block decrypt(const DES::Block plainBits) const;    
+        void  setKey(const SecretKey &key);
+        Block encrypt(const Block plainBits) const;
+        Block decrypt(const Block plainBits) const;    
 };
+
+static_assert(BlockCipherAlgorithm<DESede>);

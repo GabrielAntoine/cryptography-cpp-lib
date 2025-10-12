@@ -2,7 +2,9 @@
 
 #include <cstdint>
 #include <array>
+
 #include "bytes.h"
+#include "Key.h"
 
 class DESSecretKey {
 public:
@@ -34,3 +36,5 @@ public:
 private:    
     void calculateRoundKeys();
 };
+
+static_assert(Key<DESSecretKey>);

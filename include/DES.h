@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DESSecretKey.h"
-
+#include "BlockCipherAlgorithm.h"
 
 class DES {
     // encrypt, decrypt, setKey, ::getBlockSize, mangler
@@ -17,15 +17,20 @@ class DES {
         using HalfBlockExtended = std::bitset<HALF_BLOCK_EXTENDED_SIZE>;
         using SboxBlock = std::bitset<SBOX_BLOCK_SIZE>;
 
-    private:
-        DESSecretKey key;
+        using SecretKey = DESSecretKey;
 
-        HalfBlock mangler(const HalfBlock block, DESSecretKey::RoundKey roundKey) const;
+    private:
+        SecretKey key;
+
+        HalfBlock feistel(const HalfBlock block, SecretKey::RoundKey roundKey) const;
         Block run(const Block plainBits, bool encrypt) const;
 
     public:
 
-        void  setKey(const DESSecretKey &key);
+        void  setKey(const SecretKey &key);
         Block encrypt(const Block plainBits) const;
         Block decrypt(const Block plainBits) const;    
 };
+
+// Class DES must satisfy the concept (interface) BlockCipherAlgorithm
+static_assert(BlockCipherAlgorithm<DES>);

@@ -2,7 +2,7 @@
 #include "DES.h"
 #include "DESSecretKey.h"
 
-DES::Block DESede::run(const DES::Block plainBits, bool encrypt) const {
+DESede::Block DESede::run(const DESede::Block plainBits, bool encrypt) const {
     DES des1, des2, des3;
 
     des1.setKey(key.getDesKey1());
@@ -16,14 +16,14 @@ DES::Block DESede::run(const DES::Block plainBits, bool encrypt) const {
     }
 }
 
-void DESede::setKey(const DESedeSecretKey &key) {
+void DESede::setKey(const DESede::SecretKey &key) {
     this->key = key;
 }
 
-DES::Block DESede::encrypt(const DES::Block plainBits) const {
+DESede::Block DESede::encrypt(const DESede::Block plainBits) const {
     return run(plainBits, true);
 }
 
-DES::Block DESede::decrypt(const DES::Block plainBits) const {
+DESede::Block DESede::decrypt(const DESede::Block plainBits) const {
     return run(plainBits, false);
 } 
