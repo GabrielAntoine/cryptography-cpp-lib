@@ -19,9 +19,11 @@ static int displayModeIndex = std::ios_base::xalloc();
 static int separatorIndex   = std::ios_base::xalloc();
 
 // A structure to help operator<< change the current separator
-struct _ByteSeparator {
-    static constexpr char DEFAULT = '.';
-    char separator = DEFAULT;
+struct ByteSeparator {
+    static const ByteSeparator DEFAULT;
+    static const ByteSeparator NONE;
+
+    char separator = DEFAULT.separator;
 };
 
 // Enum to identify the current mode to display bytes
@@ -44,24 +46,20 @@ using ByteSreamCallback = std::function<void(std::ostream&, std::byte)>;
 
 
 // Operator to add, change or remove the current separator
-std::ostream& operator<<(std::ostream& os, _ByteSeparator bs);
-
-// Stream manipulator to add a separator between bytes
-_ByteSeparator byteSeparator(char c);
-
-// Stream manipulator to remove the separator between bytes
-_ByteSeparator noByteSeparator();
+std::ostream& operator<<(std::ostream& os, ByteSeparator bs);
 
 // Used to effectively change the display mode
 std::ostream& operator<<(std::ostream& os, ByteArrayDisplayMode mode);
 
-void streamBytesWithSeparator(std::ostream& os, const ByteArray<> &bytes, ByteSreamCallback streamOneByte, const char separator);
-void streamBytesWithoutSeparator(std::ostream& os, const ByteArray<> &bytes, ByteSreamCallback streamOneByte);
-void streamBytesWithOrWithoutSeparator(std::ostream& os, const ByteArray<> &bytes, ByteSreamCallback streamOneByte);
-void streamBinary(std::ostream& os, const ByteArray<> &bytes);
-void streamDecimal(std::ostream& os, const ByteArray<> &bytes);
-void streamHexa(std::ostream& os, const ByteArray<> &bytes);
-void streamAscii(std::ostream& os, const ByteArray<> &bytes);
+void streamBytesWithSeparator(std::ostream& os, const ByteSpan<> &bytes, ByteSreamCallback streamOneByte, const char separator);
+void streamBytesWithoutSeparator(std::ostream& os, const ByteSpan<> &bytes, ByteSreamCallback streamOneByte);
+void streamBytesWithOrWithoutSeparator(std::ostream& os, const ByteSpan<> &bytes, ByteSreamCallback streamOneByte);
+void streamBinary(std::ostream& os, const ByteSpan<> &bytes);
+void streamDecimal(std::ostream& os, const ByteSpan<> &bytes);
+void streamHexa(std::ostream& os, const ByteSpan<> &bytes);
+void streamAscii(std::ostream& os, const ByteSpan<> &bytes);
 
 // Stream bytes according to the current display mode and separator
-std::ostream& operator<<(std::ostream& os, const ByteArray<> &bytes);
+std::ostream& operator<<(std::ostream& os, const ByteSpan<> &bytes);
+
+std::string toString(ByteSpan<> bytes, ByteArrayDisplayMode mode = HEXA, ByteSeparator separator = ByteSeparator::NONE);

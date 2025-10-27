@@ -59,11 +59,14 @@ int main() {
     std::cout << ByteArrayDisplayMode::HEXA << std::boolalpha;
     std::cout << "DES/ECB/PKCS5Padding : \n";
     std::cout << "Plain text is     :   " << toHexString(plainText) << '\n';
-    std::cout << "Key is            :   " << key.getBytes() << '\n';
+    ByteArray<> desKeyBytes = key.getBytes();
+    std::cout << "Key is            :   " << desKeyBytes << '\n';
     auto encrypted = cipher.encrypt(plainText);
     std::cout << "Encrypted text is :   " << encrypted << " should be " << "F6F2AE257F718E340894D2D97B1CD400\n";
     auto decrypted = cipher.decrypt(encrypted);
-    std::cout << "Decrypted text is :   " << decrypted << "\n\n";
+    std::cout << "Decrypted text is :   " << decrypted << "\n";
+
+    std::cout << "Decrypted ascci   :   " << toString(decrypted, ASCII) << "\n\n";
 
     //
 
@@ -82,7 +85,8 @@ int main() {
     std::cout << ByteArrayDisplayMode::ASCII << std::boolalpha;
     std::cout << "DESede/ECB/PKCS5Padding : \n";
     std::cout << "Plain text is     :   " << toHexString(plainText) << '\n';
-    std::cout << "Key is            :   " << key3.getBytes() << '\n';
+    auto key3Bytes = key3.getBytes();
+    std::cout << "Key is            :   " << key3Bytes << '\n';
     auto encrypted3 = cipher3.encrypt(plainText);
     std::cout << "Encrypted text is :   " << encrypted3 << " should be " << "F79D8580C9DB776B88C0033420EED401\n";
     auto decrypted3 = cipher3.decrypt(encrypted3);
