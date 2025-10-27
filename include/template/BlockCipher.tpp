@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 
 #include "BlockCipher.h"
 
@@ -10,15 +11,18 @@ BlockCipher<TMode, TPadding>::BlockCipher(const TMode::Algorithm &algorithm, con
 }
 
 template <BlockCipherMode TMode, BlockCipherPadding TPadding>
-ByteArray BlockCipher<TMode, TPadding>::encrypt(ByteSpan<> bytes) const {
-    ByteArray copy(bytes.begin(), bytes.end());
-    padding.pushPadding(copy);
-    return mode.encrypt(copy);
+ByteArray<> BlockCipher<TMode, TPadding>::encrypt(ByteSpan<> bytes) const {
+    ByteArray<> copy(bytes.begin(), bytes.end());
+    ByteArray<> padded    = padding.pad(std::move(copy)); // 'padded' and 'copy' points logically to the same memory thanks to std::move
+    ByteArray<> encrypted = mode.encrypt(padded);
+    
+    return encrypted;
 }
 
 template<BlockCipherMode TMode, BlockCipherPadding TPadding>
-ByteArray BlockCipher<TMode, TPadding>::decrypt(ByteSpan<> bytes) const {
-    ByteArray decrypted = mode.decrypt(bytes);
-    padding.popPadding(decrypted);
-    return decrypted;
+ByteArray<> BlockCipher<TMode, TPadding>::decrypt(ByteSpan<> bytes) const {
+    ByteArray<> decrypted = mode.decrypt(bytes);
+    ByteArray<> unpadded  = padding.unpad(std::move(decrypted));
+
+    return unpadded;
 }

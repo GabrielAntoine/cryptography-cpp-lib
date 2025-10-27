@@ -79,7 +79,7 @@ int main() {
 
     BlockCipher cipher3(desede, ECB<DESede>(), PKCS5Padding());
 
-    std::cout << ByteArrayDisplayMode::HEXA << std::boolalpha;
+    std::cout << ByteArrayDisplayMode::ASCII << std::boolalpha;
     std::cout << "DESede/ECB/PKCS5Padding : \n";
     std::cout << "Plain text is     :   " << toHexString(plainText) << '\n';
     std::cout << "Key is            :   " << key3.getBytes() << '\n';
@@ -90,3 +90,7 @@ int main() {
 
     return 0;
 }
+
+// Ensuite, différencier ByteStaticArray et ByteDynamicArray pour pouvoir mieux gérer le padding (je crois)
+// Ajouter des fonctions to_string pour ces deux types là afin d'afficher des bytes en hexa ou en ascii 
+// Ensuite, implémenter CBC, PKCS7Padding, NoPadding et ZeroPadding

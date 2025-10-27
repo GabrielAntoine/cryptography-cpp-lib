@@ -9,7 +9,10 @@
 
 class DESedeSecretKey {
 public:
-    using KeyBytes = ByteSpan<DESSecretKey::KEY_SIZE * 3 / CHAR_BIT>;
+    static constexpr uint8_t KEY_SIZE = DESSecretKey::KEY_SIZE * 3;
+    static constexpr uint8_t KEY_SIZE_BYTES = DESSecretKey::KEY_SIZE_BYTES * 3; 
+
+    using KeyBytes = ByteSpan<KEY_SIZE_BYTES>;
 
 private:
 
@@ -22,7 +25,7 @@ public:
     DESedeSecretKey() = default;
     DESedeSecretKey(KeyBytes key);
 
-    ByteArray getBytes() const;
+    ByteArray<> getBytes() const;
 
     const DESSecretKey &getDesKey1() const;
     const DESSecretKey &getDesKey2() const;

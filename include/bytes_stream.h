@@ -55,13 +55,13 @@ _ByteSeparator noByteSeparator();
 // Used to effectively change the display mode
 std::ostream& operator<<(std::ostream& os, ByteArrayDisplayMode mode);
 
-void streamBytesWithSeparator(std::ostream& os, const ByteArray &bytes, ByteSreamCallback streamOneByte, const char separator);
-void streamBytesWithoutSeparator(std::ostream& os, const ByteArray &bytes, ByteSreamCallback streamOneByte);
-void streamBytesWithOrWithoutSeparator(std::ostream& os, const ByteArray &bytes, ByteSreamCallback streamOneByte);
-void streamBinary(std::ostream& os, const ByteArray &bytes);
-void streamDecimal(std::ostream& os, const ByteArray &bytes);
-void streamHexa(std::ostream& os, const ByteArray &bytes);
-void streamAscii(std::ostream& os, const ByteArray &bytes);
+void streamBytesWithSeparator(std::ostream& os, const ByteArray<> &bytes, ByteSreamCallback streamOneByte, const char separator);
+void streamBytesWithoutSeparator(std::ostream& os, const ByteArray<> &bytes, ByteSreamCallback streamOneByte);
+void streamBytesWithOrWithoutSeparator(std::ostream& os, const ByteArray<> &bytes, ByteSreamCallback streamOneByte);
+void streamBinary(std::ostream& os, const ByteArray<> &bytes);
+void streamDecimal(std::ostream& os, const ByteArray<> &bytes);
+void streamHexa(std::ostream& os, const ByteArray<> &bytes);
+void streamAscii(std::ostream& os, const ByteArray<> &bytes);
 
 // Stream bytes according to the current display mode and separator
-std::ostream& operator<<(std::ostream& os, const ByteArray &bytes);
+std::ostream& operator<<(std::ostream& os, const ByteArray<> &bytes);

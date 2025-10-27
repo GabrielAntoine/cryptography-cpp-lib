@@ -60,9 +60,22 @@ std::bitset<size> rotr(const std::bitset<size> &bitset, const size_t shift) {
 }
 
 template<size_t bitsCount>
-ByteArray toByteArray(const std::bitset<bitsCount> &bitset) {
-    constexpr size_t bytesCount = bitsCount / CHAR_BIT;
-    ByteArray output(bytesCount);
+ByteArray<byteCountFromBits(bitsCount)> toByteArray(const std::bitset<bitsCount> &bitset) {
+    constexpr size_t bytesCount = byteCountFromBits(bitsCount);
+    ByteArray<bytesCount> output;
+
+    for (int i = 0; i < bytesCount; i++) {
+        uint8_t byte = ((bitset >> ((bytesCount - 1 - i) * CHAR_BIT)) & std::bitset<bitsCount>(UINT8_MAX)).to_ulong();
+        output[i] = std::byte(byte);
+    }
+
+    return output;
+}
+
+template<size_t bitsCount>
+ByteArray<> toDynamicByteArray(const std::bitset<bitsCount> &bitset) {
+    constexpr size_t bytesCount = byteCountFromBits(bitsCount);
+    ByteArray<> output(bytesCount);
 
     for (int i = 0; i < bytesCount; i++) {
         uint8_t byte = ((bitset >> ((bytesCount - 1 - i) * CHAR_BIT)) & std::bitset<bitsCount>(UINT8_MAX)).to_ulong();

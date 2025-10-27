@@ -14,8 +14,8 @@ private:
 public:
     BlockCipher(const typename TMode::Algorithm &algorithm, const TMode &mode, const TPadding &padding);
 
-    ByteArray encrypt(ByteSpan<> plainText) const;
-    ByteArray decrypt(ByteSpan<> plainText) const;
+    ByteArray<> encrypt(ByteSpan<> plainText) const;
+    ByteArray<> decrypt(ByteSpan<> plainText) const;
 };
 
 #include "BlockCipher.tpp"

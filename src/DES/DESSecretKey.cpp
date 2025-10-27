@@ -10,8 +10,8 @@ DESSecretKey::DESSecretKey(KeyBytes key): key(toBitset(key)) {
     calculateRoundKeys();
 }
 
-ByteArray DESSecretKey::getBytes() const {
-    return toByteArray(key);
+ByteArray<> DESSecretKey::getBytes() const {
+    return toDynamicByteArray(key);
 }
 
 DESSecretKey::RoundKey DESSecretKey::getRoundKey(const int roundNumber) const {

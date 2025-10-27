@@ -11,6 +11,7 @@ public:
 
     static constexpr uint8_t ROUND_COUNT    = 16;
     static constexpr uint8_t KEY_SIZE       = 64;
+    static constexpr uint8_t KEY_SIZE_BYTES = byteCountFromBits(KEY_SIZE);
     static constexpr uint8_t REAL_KEY_SIZE  = 56;
     static constexpr uint8_t ROUND_KEY_SIZE = 48;
     static constexpr uint8_t HALF_KEY_SIZE  = 28;
@@ -30,7 +31,7 @@ public:
     DESSecretKey() = default;
     DESSecretKey(KeyBytes key);
 
-    ByteArray getBytes() const;
+    ByteArray<> getBytes() const;
     RoundKey getRoundKey(const int roundNumber) const;
 
 private:    

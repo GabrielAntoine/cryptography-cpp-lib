@@ -11,8 +11,8 @@
 class PKCS5Padding {
 
 public:
-    void pushPadding(ByteArray &bytes) const;
-    void popPadding(ByteArray &bytes) const;
+    ByteArray<> pad(ByteArray<> bytes) const;
+    ByteArray<> unpad(ByteArray<> bytes) const;
 };
 
 static_assert(BlockCipherPadding<PKCS5Padding>);

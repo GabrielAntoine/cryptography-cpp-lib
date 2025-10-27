@@ -6,5 +6,5 @@
 
 template <typename T>
 concept Key = requires(T t) {
-    { t.getBytes() } -> std::same_as<ByteArray>;
+    { t.getBytes() } -> std::same_as<ByteArray<>>;
 };
