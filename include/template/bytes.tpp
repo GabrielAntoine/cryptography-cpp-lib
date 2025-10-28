@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstddef>
+#include <cassert>
+#include <stdexcept>
 
 #include "bytes.h"
 
@@ -60,8 +62,8 @@ std::bitset<size> rotr(const std::bitset<size> &bitset, const size_t shift) {
 }
 
 template<size_t bitsCount>
-ByteArray<byteCountFromBits(bitsCount)> toByteArray(const std::bitset<bitsCount> &bitset) {
-    constexpr size_t bytesCount = byteCountFromBits(bitsCount);
+ByteArray<toByteCount(bitsCount)> toByteArray(const std::bitset<bitsCount> &bitset) {
+    constexpr size_t bytesCount = toByteCount(bitsCount);
     ByteArray<bytesCount> output;
 
     for (int i = 0; i < bytesCount; i++) {
@@ -72,9 +74,31 @@ ByteArray<byteCountFromBits(bitsCount)> toByteArray(const std::bitset<bitsCount>
     return output;
 }
 
+template<size_t charSize>
+ByteArray<(charSize - 1) / 2> toByteArray(const char (&hexa)[charSize]) {
+    static_assert((charSize - 1) % 2 == 0); // Because one byte is two hexa digits
+    static constexpr size_t byteCount = (charSize - 1) / 2;
+    static constexpr auto hexaToInt = [](char c) -> int {
+        if (c >= '0' && c <= '9') return c - '0';
+        if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+        if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+        else {
+            throw std::invalid_argument("Invalid hexa digit");
+        }
+    };
+
+    ByteArray<byteCount> output;
+
+    for (size_t i = 0; i < charSize - 1; i += 2) {
+        output[i / 2] = std::byte((hexaToInt(hexa[i]) << 4)  + hexaToInt(hexa[i + 1]));
+    }
+
+    return output;
+}
+
 template<size_t bitsCount>
 ByteArray<> toDynamicByteArray(const std::bitset<bitsCount> &bitset) {
-    constexpr size_t bytesCount = byteCountFromBits(bitsCount);
+    constexpr size_t bytesCount = toByteCount(bitsCount);
     ByteArray<> output(bytesCount);
 
     for (int i = 0; i < bytesCount; i++) {

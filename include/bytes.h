@@ -6,13 +6,12 @@
 
 #include <array>
 #include <cstddef>
-#include <functional>
 #include <cstdint>
 #include <span>
 #include <vector>
-#include <algorithm>
 #include <bitset>
 #include <type_traits>
+
 
 template <size_t _Extent = std::dynamic_extent>
 using ByteSpan = std::span<std::byte, _Extent>;
@@ -22,6 +21,14 @@ using ByteSpan = std::span<std::byte, _Extent>;
 template <size_t s = std::dynamic_extent>
 using ByteArray = std::conditional_t<s == std::dynamic_extent, std::vector<std::byte>, std::array<std::byte, s>>;
 
+// These two types are unused for now but should be used to securize padding algorithms
+template <size_t blockSize>
+using ByteBlockSpan = std::span<ByteArray<blockSize>>;
+
+template <size_t blockSize>
+using ByteBlockArray = std::vector<ByteArray<blockSize>>;
+
+// Bitset function (TODO: move them to another file)
 
 template<size_t size>
 std::bitset<size * CHAR_BIT> toBitset(const ByteSpan<size> &bytes);
@@ -40,12 +47,21 @@ std::bitset<size> rotr(const std::bitset<size> &bitset, const size_t shift);
 
 ByteArray<> toByteArray(const size_t n);
 
-constexpr size_t byteCountFromBits(size_t bitCount) {
+constexpr size_t toByteCount(size_t bitCount) {
     return bitCount / CHAR_BIT;
 }
 
+constexpr size_t bitCountFromBytes(size_t byteCount) {
+    return byteCount * 8;
+}
+
 template<size_t bitsCount>
-ByteArray<byteCountFromBits(bitsCount)> toByteArray(const std::bitset<bitsCount> &bitset);
+ByteArray<toByteCount(bitsCount)> toByteArray(const std::bitset<bitsCount> &bitset);
+
+// This function's only purpose is to easily create a ByteArray from a hexa string
+// Trailing zeros are mandatory
+template<size_t charSize>
+ByteArray<(charSize - 1) / 2> toByteArray(const char (&hexa)[charSize]);
 
 template<size_t bitsCount>
 ByteArray<> toDynamicByteArray(const std::bitset<bitsCount> &bitset);
