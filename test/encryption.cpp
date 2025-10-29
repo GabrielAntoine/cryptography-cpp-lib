@@ -9,8 +9,8 @@
 #include "DESede.h"
 
 struct EncryptionFixture {
-    ByteArray<15> plainText15 = toByteArray("6761627269656c206c6520676f6174"); // gabriel le goat
-    ByteArray<24> plainText24 = toByteArray("4E6F20696365637265616D20666F7220796F752E2E2E2021"); // No icecream for you... !
+    ByteArray<15> plainText15 = toByteArrayFromAscii("gabriel le goat");
+    ByteArray<24> plainText24 = toByteArrayFromAscii("No icecream for you... !");
     ByteArray<8>  iv64        = toByteArray("0123456789abcdef");
 };
 

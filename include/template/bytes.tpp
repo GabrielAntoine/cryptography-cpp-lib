@@ -96,6 +96,17 @@ ByteArray<(charSize - 1) / 2> toByteArray(const char (&hexa)[charSize]) {
     return output;
 }
 
+template<size_t charSize>
+ByteArray<charSize - 1> toByteArrayFromAscii(const char(&ascii)[charSize]) {
+    ByteArray<charSize - 1> output;
+
+    for (int i = 0; i < charSize; i++) {
+        output[i] = std::byte(ascii[i]);
+    }
+
+    return output;
+}
+
 template<size_t bitsCount>
 ByteArray<> toDynamicByteArray(const std::bitset<bitsCount> &bitset) {
     constexpr size_t bytesCount = toByteCount(bitsCount);

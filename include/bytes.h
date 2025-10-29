@@ -63,6 +63,10 @@ ByteArray<toByteCount(bitsCount)> toByteArray(const std::bitset<bitsCount> &bits
 template<size_t charSize>
 ByteArray<(charSize - 1) / 2> toByteArray(const char (&hexa)[charSize]);
 
+// This function's only purpose is to easily create a ByteArray from a ascii string
+template<size_t charSize>
+ByteArray<charSize - 1> toByteArrayFromAscii(const char(&ascii)[charSize]);
+
 template<size_t bitsCount>
 ByteArray<> toDynamicByteArray(const std::bitset<bitsCount> &bitset);
 
