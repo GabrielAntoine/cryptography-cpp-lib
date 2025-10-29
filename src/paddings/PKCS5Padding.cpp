@@ -1,4 +1,5 @@
 #include "PKCS5Padding.h"
+#include "DES.h"
 
 ByteArray<> PKCS5Padding::pad(ByteArray<> bytes) const {
     // Determines the integer n which is repeated n times to pad
