@@ -5,12 +5,14 @@
 #include "CBC.h"
 #include "PKCS5Padding.h"
 #include "NoPadding.h"
+#include "ZeroPadding.h"
 #include "bytes_stream.h"
 #include "DESede.h"
 
 struct EncryptionFixture {
     ByteArray<15> plainText15 = toByteArrayFromAscii("gabriel le goat");
     ByteArray<24> plainText24 = toByteArrayFromAscii("No icecream for you... !");
+    ByteArray<12> plainText12WithZerosAtTheEnd = toByteArray("4e863c9314ddab3e6f000000");
     ByteArray<8>  iv64        = toByteArray("0123456789abcdef");
 };
 
@@ -56,6 +58,45 @@ TEST_CASE_METHOD(DESFixture, "DES/ECB/NoPadding", "[encryption]") {
 
     auto decrypted = cipher.decrypt(encrypted);
     REQUIRE(toString(decrypted) == toString(plainText24));
+}
+
+TEST_CASE_METHOD(DESFixture, "DES/ECB/ZeroPadding", "[encryption]") {
+    BlockCipher cipher(des, ECB<DES>(), ZeroPadding<DES::BLOCK_SIZE>());
+
+    SECTION("One zero added") {
+        auto encrypted = cipher.encrypt(plainText15);
+        REQUIRE(toString(encrypted) == "F6F2AE257F718E34D24B12B6E9E71F9A");
+
+        auto decrypted = cipher.decrypt(encrypted);
+        REQUIRE(toString(decrypted) == toString(plainText15));
+    }
+
+    SECTION("No zero added") {
+        auto encrypted = cipher.encrypt(plainText24);
+        REQUIRE(toString(encrypted) == "AAAB52782D91889AC9EF12D1EB322671D541ADCD73CE97BD");
+
+        auto decrypted = cipher.decrypt(encrypted);
+        REQUIRE(toString(decrypted) == toString(plainText24));
+    }
+
+    SECTION("Too much zeros removed ! (Bad use of ZeroPadding)") {
+        auto encrypted = cipher.encrypt(plainText12WithZerosAtTheEnd);
+        auto decrypted = cipher.decrypt(encrypted);
+
+        REQUIRE(plainText12WithZerosAtTheEnd.size() == 12);
+        REQUIRE(encrypted.size() == 16);
+        REQUIRE(decrypted.size() == 9);
+    }
+}
+
+// Not very useful to test it with DES since it's the same as PKCS5Padding
+TEST_CASE_METHOD(DESFixture, "DES/ECB/PKCS7Padding", "[encryption]") {
+    BlockCipher cipher(des, ECB<DES>(), PKCS7Padding<DES::BLOCK_SIZE>());
+    auto encrypted = cipher.encrypt(plainText15);
+    auto decrypted = cipher.decrypt(encrypted);
+    
+    REQUIRE(toString(encrypted) == "F6F2AE257F718E340894D2D97B1CD400");
+    REQUIRE(toString(decrypted) == toString(plainText15));
 }
 
 TEST_CASE_METHOD(DESFixture, "DES/CBC/PKCS5Padding", "[encryption]") {

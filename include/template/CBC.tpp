@@ -12,8 +12,8 @@ void CBC<TAlgorithm>::setIV(IVSpan iv) {
     std::copy(iv.begin(), iv.end(), this->iv.begin());
 }
 
-// encrypt and decrypt are very similar but I think it's still worth the readability
-// The only difference is the order of the lines encrypt/decrypt and xor with iv
+// encrypt and decrypt are very similar but I think it's still worth the readability.
+// The only difference is the order of the lines encrypt/decrypt and xor with iv.
 
 template <BlockCipherAlgorithm TAlgorithm>
 ByteArray<> CBC<TAlgorithm>::encrypt(ByteSpan<> bytes) const {

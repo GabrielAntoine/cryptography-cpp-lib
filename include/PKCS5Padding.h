@@ -2,13 +2,13 @@
 
 #include "bytes.h"
 #include "BlockCipherPadding.h"
+#include "DES.h"
+#include "PKCS7Padding.h"
 
-
-class PKCS5Padding {
+class PKCS5Padding : public PKCS7Padding<DES::BLOCK_SIZE> {
 
 public:
-    ByteArray<> pad(ByteArray<> bytes) const;
-    ByteArray<> unpad(ByteArray<> bytes) const;
+    static constexpr size_t BLOCK_SIZE = DES::BLOCK_SIZE;
 };
 
 static_assert(BlockCipherPadding<PKCS5Padding>);
