@@ -1,14 +1,14 @@
-#include "CBC.h"
+#include "CFB.h"
 
 #include <iostream>
 
 template <BlockCipherAlgorithm TAlgorithm>
-void CBC<TAlgorithm>::setAlgorithm(const Algorithm &algorithm) {
+void CFB<TAlgorithm>::setAlgorithm(const Algorithm &algorithm) {
     this->algorithm = algorithm;
 }
 
 template <BlockCipherAlgorithm TAlgorithm>
-void CBC<TAlgorithm>::setIV(IVSpan iv) {
+void CFB<TAlgorithm>::setIV(IVSpan iv) {
     std::copy(iv.begin(), iv.end(), this->iv.begin());
 }
 
@@ -17,7 +17,7 @@ void CBC<TAlgorithm>::setIV(IVSpan iv) {
 // Note : I tried to avoid the redundancy but it was way too difficult. 
 
 template <BlockCipherAlgorithm TAlgorithm>
-ByteArray<> CBC<TAlgorithm>::encrypt(ByteSpan<> bytes) const {
+ByteArray<> CFB<TAlgorithm>::encrypt(ByteSpan<> bytes) const {
     constexpr size_t blockSize = toByteCount(Algorithm::BLOCK_SIZE);
     const size_t blockCount = bytes.size() / blockSize;
 
@@ -30,8 +30,8 @@ ByteArray<> CBC<TAlgorithm>::encrypt(ByteSpan<> bytes) const {
         typename TAlgorithm::Block currentBitset   = toBitset(currentBlock);
         
         typename TAlgorithm::Block ivBitset        = toBitset(currentIv);
-        typename TAlgorithm::Block xoredWithIv     = currentBitset ^ ivBitset;
-        typename TAlgorithm::Block encryptedBitset = algorithm.encrypt(xoredWithIv);
+        typename TAlgorithm::Block encryptedIv     = algorithm.encrypt(ivBitset);
+        typename TAlgorithm::Block encryptedBitset = currentBitset ^ encryptedIv;
         
         ByteArray<blockSize>       encryptedBlock  = toByteArray(encryptedBitset);
         currentIv = encryptedBlock;
@@ -43,7 +43,7 @@ ByteArray<> CBC<TAlgorithm>::encrypt(ByteSpan<> bytes) const {
 }
 
 template <BlockCipherAlgorithm TAlgorithm>
-ByteArray<> CBC<TAlgorithm>::decrypt(ByteSpan<> bytes) const {
+ByteArray<> CFB<TAlgorithm>::decrypt(ByteSpan<> bytes) const {
     constexpr size_t blockSize = toByteCount(Algorithm::BLOCK_SIZE);
     const size_t blockCount = bytes.size() / blockSize;
 
@@ -55,9 +55,9 @@ ByteArray<> CBC<TAlgorithm>::decrypt(ByteSpan<> bytes) const {
         ByteSpan<blockSize>        currentBlock    = ByteSpan<blockSize>(bytes.subspan(byteIndex, blockSize));
         typename TAlgorithm::Block currentBitset   = toBitset(currentBlock);
         typename TAlgorithm::Block ivBitset        = toBitset(currentIv);
-        typename TAlgorithm::Block decryptedBitset = algorithm.decrypt(currentBitset);
-        typename TAlgorithm::Block xoredWithIv     = decryptedBitset ^ ivBitset;
-        ByteArray<blockSize>       decryptedBlock  = toByteArray(xoredWithIv);
+        typename TAlgorithm::Block encryptedIv     = algorithm.encrypt(ivBitset);
+        typename TAlgorithm::Block decryptedBitset = encryptedIv ^ currentBitset;
+        ByteArray<blockSize>       decryptedBlock  = toByteArray(decryptedBitset);
 
         currentIv = currentBlock;
         

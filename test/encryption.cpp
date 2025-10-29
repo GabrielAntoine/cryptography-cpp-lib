@@ -3,6 +3,7 @@
 #include "BlockCipher.h"
 #include "ECB.h"
 #include "CBC.h"
+#include "CFB.h"
 #include "PKCS5Padding.h"
 #include "NoPadding.h"
 #include "ZeroPadding.h"
@@ -115,6 +116,18 @@ TEST_CASE_METHOD(DESFixture, "DES/CBC/PKCS5Padding", "[encryption]") {
 
     INFO("Decrypted text in ascii is : " << toString(decrypted, ASCII));
     REQUIRE(toString(decrypted) == toString(plainText15));
+}
+
+TEST_CASE_METHOD(DESFixture, "DES/CFB/NoPadding", "[encryption]") {
+    CFB<DES> cfb;
+    cfb.setIV(iv64);
+    BlockCipher cipher(des, cfb, NoPadding());
+
+    auto encrypted = cipher.encrypt(plainText24);
+    REQUIRE(toString(encrypted) == "CB87333D6C6FD777DEF9C81397CE751FFA0AC4A797A36675");
+
+    auto decrypted = cipher.decrypt(encrypted);
+    REQUIRE(toString(decrypted) == toString(plainText24));
 }
 
 TEST_CASE_METHOD(DESedeFixture, "DESede/ECB/PKCS5Padding", "[encryption]") {
