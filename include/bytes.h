@@ -14,7 +14,7 @@
 
 
 template <size_t _Extent = std::dynamic_extent>
-using ByteSpan = std::span<std::byte, _Extent>;
+using ByteSpan = std::span<const std::byte, _Extent>;
 
 // Uses a std::vector if no size specified, std::array otherwise
 // Allows not to have two distinct types that have the 'same' meaning

@@ -6,7 +6,7 @@
 template <typename TAlgorithm>
 concept BlockCipherAlgorithm =
     requires {
-        { TAlgorithm::BLOCK_SIZE } -> std::convertible_to<size_t>;
+        { TAlgorithm::BLOCK_SIZE } -> std::convertible_to<size_t>; // in number of bits
         typename TAlgorithm::Block;
         typename TAlgorithm::SecretKey;
     } &&

@@ -2,12 +2,14 @@
 #include "DES.h"
 #include "BlockCipher.h"
 #include "ECB.h"
+#include "CBC.h"
 #include "PKCS5Padding.h"
 #include "bytes_stream.h"
 #include "DESede.h"
 
 struct EncryptionFixture {
-    ByteArray<15> plainText = toByteArray("6761627269656c206c6520676f6174");
+    ByteArray<15> plainText = toByteArray("6761627269656c206c6520676f6174"); // gabriel le goat
+    ByteArray<8>  iv64      = toByteArray("0123456789abcdef");
 };
 
 struct DESFixture : public EncryptionFixture {
@@ -44,7 +46,25 @@ TEST_CASE_METHOD(DESFixture, "DES/ECB/PKCS5Padding", "[encryption]") {
     REQUIRE(toString(decrypted) == toString(plainText));
 }
 
-TEST_CASE_METHOD(DESedeFixture, "DESede/ECB/PKCSPadding", "[encryption]") {
+TEST_CASE_METHOD(DESFixture, "DES/CBC/PKCS5Padding", "[encryption]") {
+    CBC<DES> cbc;
+    cbc.setIV(iv64);
+    BlockCipher cipher(des, cbc, PKCS5Padding());
+    auto encrypted = cipher.encrypt(plainText);
+
+    INFO("Encrypted text  is : " << toString(encrypted, HEXA, ByteSeparator{'-'}));
+
+    REQUIRE(encrypted.size() % toByteCount(DES::BLOCK_SIZE) == 0);
+    REQUIRE(toString(encrypted) == "0377B18F0ACCCD1A87F3491E478F4B4C");
+
+    INFO("Decrypting...");
+    auto decrypted = cipher.decrypt(encrypted);
+
+    INFO("Decrypted text in ascii is : " << toString(decrypted, ASCII));
+    REQUIRE(toString(decrypted) == toString(plainText));
+}
+
+TEST_CASE_METHOD(DESedeFixture, "DESede/ECB/PKCS5Padding", "[encryption]") {
     BlockCipher cipher(desede, ECB<DESede>(), PKCS5Padding());
     auto encrypted = cipher.encrypt(plainText);
     auto decrypted = cipher.decrypt(encrypted);
