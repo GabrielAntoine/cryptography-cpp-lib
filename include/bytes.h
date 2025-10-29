@@ -33,6 +33,9 @@ using ByteBlockArray = std::vector<ByteArray<blockSize>>;
 template<size_t size>
 std::bitset<size * CHAR_BIT> toBitset(const ByteSpan<size> &bytes);
 
+template<size_t bitsetSize>
+std::bitset<bitsetSize> toBitset(ByteSpan<> &bytes);
+
 template<size_t outputSize, size_t inputSize>
 std::bitset<outputSize> sliceBitset(const std::bitset<inputSize> &input, const size_t offset = 0);
 
@@ -68,6 +71,6 @@ template<size_t charSize>
 ByteArray<charSize - 1> toByteArrayFromAscii(const char(&ascii)[charSize]);
 
 template<size_t bitsCount>
-ByteArray<> toDynamicByteArray(const std::bitset<bitsCount> &bitset);
+ByteArray<> toDynamicByteArray(const std::bitset<bitsCount> &bitset, size_t offset = 0, size_t size = toByteCount(bitsCount));
 
 #include "bytes.tpp"

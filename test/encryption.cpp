@@ -123,11 +123,21 @@ TEST_CASE_METHOD(DESFixture, "DES/CFB/NoPadding", "[encryption]") {
     cfb.setIV(iv64);
     BlockCipher cipher(des, cfb, NoPadding());
 
-    auto encrypted = cipher.encrypt(plainText24);
-    REQUIRE(toString(encrypted) == "CB87333D6C6FD777DEF9C81397CE751FFA0AC4A797A36675");
+    SECTION("Without incomplete blocks") {
+        auto encrypted = cipher.encrypt(plainText24);
+        REQUIRE(toString(encrypted) == "CB87333D6C6FD777DEF9C81397CE751FFA0AC4A797A36675");
+    
+        auto decrypted = cipher.decrypt(encrypted);
+        REQUIRE(toString(decrypted) == toString(plainText24));
+    }
 
-    auto decrypted = cipher.decrypt(encrypted);
-    REQUIRE(toString(decrypted) == toString(plainText24));
+    SECTION("With incomplete blocks") {
+        auto encrypted = cipher.encrypt(plainText15);
+        REQUIRE(toString(encrypted) == "E2897126666FD8259E0F0AAE138B80");
+    
+        auto decrypted = cipher.decrypt(encrypted);
+        REQUIRE(toString(decrypted) == toString(plainText15));
+    }
 }
 
 TEST_CASE_METHOD(DESedeFixture, "DESede/ECB/PKCS5Padding", "[encryption]") {

@@ -17,6 +17,19 @@ std::bitset<size * CHAR_BIT> toBitset(const ByteSpan<size> &bytes) {
     return bitset;
 }
 
+template<size_t bitsetSize>
+std::bitset<bitsetSize> toBitset(ByteSpan<> &bytes) {
+    assert(bytes.size() <= toByteCount(bitsetSize));
+
+    std::bitset<bitsetSize> bitset;
+
+    for (const auto byte : bytes) {
+        bitset = (bitset << CHAR_BIT) | std::bitset<bitsetSize>(std::to_integer<uint8_t>(byte));
+    }
+
+    return bitset;
+}
+
 template<size_t outputSize, size_t inputSize>
 std::bitset<outputSize> sliceBitset(const std::bitset<inputSize> &input, const size_t offset) {
     std::bitset<outputSize> output;
@@ -108,13 +121,12 @@ ByteArray<charSize - 1> toByteArrayFromAscii(const char(&ascii)[charSize]) {
 }
 
 template<size_t bitsCount>
-ByteArray<> toDynamicByteArray(const std::bitset<bitsCount> &bitset) {
-    constexpr size_t bytesCount = toByteCount(bitsCount);
-    ByteArray<> output(bytesCount);
+ByteArray<> toDynamicByteArray(const std::bitset<bitsCount> &bitset, size_t offset, size_t size) {
+    ByteArray<> output(size);
 
-    for (int i = 0; i < bytesCount; i++) {
-        uint8_t byte = ((bitset >> ((bytesCount - 1 - i) * CHAR_BIT)) & std::bitset<bitsCount>(UINT8_MAX)).to_ulong();
-        output[i] = std::byte(byte);
+    for (int i = offset; i < offset + size; i++) {
+        uint8_t byte = ((bitset >> ((toByteCount(bitsCount) - 1 - i) * CHAR_BIT)) & std::bitset<bitsCount>(UINT8_MAX)).to_ulong();
+        output[i - offset] = std::byte(byte);
     }
 
     return output;
