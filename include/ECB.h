@@ -13,8 +13,6 @@ public:
 private:
     Algorithm algorithm;
 
-    ByteArray<> run(ByteSpan<> plainText, const bool encrypt) const;
-
 public:
     void setAlgorithm(TAlgorithm algorithm);
     ByteArray<> encrypt(ByteSpan<> plainText) const;

@@ -12,57 +12,26 @@ void CBC<TAlgorithm>::setIV(IVSpan iv) {
     std::copy(iv.begin(), iv.end(), this->iv.begin());
 }
 
-// encrypt and decrypt are very similar but I think it's still worth the readability.
-// The only difference is the order of the lines encrypt/decrypt and xor with iv.
-// Note : I tried to avoid the redundancy but it was way too difficult. 
-
 template <BlockCipherAlgorithm TAlgorithm>
 ByteArray<> CBC<TAlgorithm>::encrypt(ByteSpan<> bytes) const {
-    constexpr size_t blockSize = toByteCount(Algorithm::BLOCK_SIZE);
-    const size_t blockCount = bytes.size() / blockSize;
+    typename TAlgorithm::Block currentIv = toBitset(IVSpan(iv));
 
-    ByteArray<> encrypted(bytes.size());
+    return mapForEachBlock<TAlgorithm::BLOCK_SIZE>(bytes, [this, &currentIv](TAlgorithm::Block currentBitset) {
+        typename TAlgorithm::Block encryptedBitset = algorithm.encrypt(currentBitset ^ currentIv);
+        currentIv = encryptedBitset;
 
-    IVSpan currentIv(iv);
-    for (int i = 0; i < blockCount; i++) {
-        const size_t               byteIndex       = i * blockSize;
-        ByteSpan<blockSize>        currentBlock    = ByteSpan<blockSize>(bytes.subspan(byteIndex, blockSize));
-        typename TAlgorithm::Block currentBitset   = toBitset(currentBlock);
-        
-        typename TAlgorithm::Block ivBitset        = toBitset(currentIv);
-        typename TAlgorithm::Block xoredWithIv     = currentBitset ^ ivBitset;
-        typename TAlgorithm::Block encryptedBitset = algorithm.encrypt(xoredWithIv);
-        
-        ByteArray<blockSize>       encryptedBlock  = toByteArray(encryptedBitset);
-        currentIv = encryptedBlock;
-        
-        std::copy(encryptedBlock.begin(), encryptedBlock.end(), encrypted.begin() + byteIndex);
-    }
-
-    return encrypted;
+        return encryptedBitset;
+    });
 }
 
 template <BlockCipherAlgorithm TAlgorithm>
 ByteArray<> CBC<TAlgorithm>::decrypt(ByteSpan<> bytes) const {
-    constexpr size_t blockSize = toByteCount(Algorithm::BLOCK_SIZE);
-    const size_t blockCount = bytes.size() / blockSize;
+    typename TAlgorithm::Block currentIv = toBitset(IVSpan(iv));
 
-    ByteArray<> decrypted(bytes.size());
+    return mapForEachBlock<TAlgorithm::BLOCK_SIZE>(bytes, [this, &currentIv](TAlgorithm::Block currentBitset) {
+        typename TAlgorithm::Block decryptedBitset = algorithm.decrypt(currentBitset) ^ currentIv;
+        currentIv = currentBitset;
 
-    IVSpan currentIv(iv);
-    for (int i = 0; i < blockCount; i++) {
-        const size_t               byteIndex       = i * blockSize;
-        ByteSpan<blockSize>        currentBlock    = ByteSpan<blockSize>(bytes.subspan(byteIndex, blockSize));
-        typename TAlgorithm::Block currentBitset   = toBitset(currentBlock);
-        typename TAlgorithm::Block ivBitset        = toBitset(currentIv);
-        typename TAlgorithm::Block decryptedBitset = algorithm.decrypt(currentBitset);
-        typename TAlgorithm::Block xoredWithIv     = decryptedBitset ^ ivBitset;
-        ByteArray<blockSize>       decryptedBlock  = toByteArray(xoredWithIv);
-
-        currentIv = currentBlock;
-        
-        std::copy(decryptedBlock.begin(), decryptedBlock.end(), decrypted.begin() + byteIndex);
-    }
-
-    return decrypted;
+        return decryptedBitset;
+    });
 }

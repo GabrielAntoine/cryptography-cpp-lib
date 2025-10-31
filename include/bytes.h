@@ -1,9 +1,5 @@
 #pragma once
 
-// This file provides the alias type "ByteArray" which is equivalent to std::vector<std::byte> or std::array (see below how).
-// Then, it adds all the bitwise operators such as &, |, ^, ~, <<, >>, rotr, rotl and maybe more.
-// The operations on two ByteArray work so that the output array will have the size of the smallest array.
-
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -11,7 +7,14 @@
 #include <vector>
 #include <bitset>
 #include <type_traits>
+#include <functional>
 
+/**
+ * 
+ * Types
+ * 
+ * 
+ */
 
 template <size_t _Extent = std::dynamic_extent>
 using ByteSpan = std::span<const std::byte, _Extent>;
@@ -28,49 +31,98 @@ using ByteBlockSpan = std::span<ByteArray<blockSize>>;
 template <size_t blockSize>
 using ByteBlockArray = std::vector<ByteArray<blockSize>>;
 
-// Bitset function (TODO: move them to another file)
+using BitArray = std::vector<bool>;
 
-template<size_t size>
-std::bitset<size * CHAR_BIT> toBitset(const ByteSpan<size> &bytes);
 
-template<size_t bitsetSize>
-std::bitset<bitsetSize> toBitset(ByteSpan<> &bytes);
-
-template<size_t outputSize, size_t inputSize>
-std::bitset<outputSize> sliceBitset(const std::bitset<inputSize> &input, const size_t offset = 0);
-
-template<size_t difference, size_t inputSize>
-std::bitset<inputSize + difference> extendBitset(const std::bitset<inputSize> &input);
-
-template<size_t size>
-std::bitset<size> rotl(const std::bitset<size> &bitset, const size_t shift);
-
-template<size_t size>
-std::bitset<size> rotr(const std::bitset<size> &bitset, const size_t shift);
-
-ByteArray<> toByteArray(const size_t n);
+/**
+ * 
+ * Constexpr functions
+ * 
+ * 
+ */
 
 constexpr size_t toByteCount(size_t bitCount) {
     return bitCount / CHAR_BIT;
 }
 
-constexpr size_t bitCountFromBytes(size_t byteCount) {
-    return byteCount * 8;
+constexpr size_t toBitCount(size_t byteCount) {
+    return byteCount * CHAR_BIT;
 }
 
+
+/**
+ * 
+ * Functions to convert to std::bitset
+ * 
+ * 
+ */
+
+template<size_t size>
+auto toBitset(const ByteSpan<size> &bytes) -> std::bitset<toBitCount(size)>;
+
+template<size_t bitsetSize>
+auto toBitset(ByteSpan<> &bytes) -> std::bitset<bitsetSize>;
+
+
+/**
+ * 
+ * Functions to convert to static or dynamic ByteArray 
+ * 
+ * 
+ */
+
+auto toByteArray(const size_t n) -> ByteArray<>;
+
 template<size_t bitsCount>
-ByteArray<toByteCount(bitsCount)> toByteArray(const std::bitset<bitsCount> &bitset);
+auto toByteArray(const std::bitset<bitsCount> &bitset) -> ByteArray<toByteCount(bitsCount)>;
+
+template<size_t bitsCount>
+auto toDynamicByteArray(const std::bitset<bitsCount> &bitset, size_t offset = 0, size_t size = toByteCount(bitsCount)) -> ByteArray<>;
 
 // This function's only purpose is to easily create a ByteArray from a hexa string
 // Trailing zeros are mandatory
 template<size_t charSize>
-ByteArray<(charSize - 1) / 2> toByteArray(const char (&hexa)[charSize]);
+auto toByteArrayFromHexa(const char (&hexa)[charSize]) -> ByteArray<(charSize - 1) / 2>;
 
 // This function's only purpose is to easily create a ByteArray from a ascii string
 template<size_t charSize>
-ByteArray<charSize - 1> toByteArrayFromAscii(const char(&ascii)[charSize]);
+auto toByteArrayFromAscii(const char(&ascii)[charSize]) -> ByteArray<charSize - 1>;
 
-template<size_t bitsCount>
-ByteArray<> toDynamicByteArray(const std::bitset<bitsCount> &bitset, size_t offset = 0, size_t size = toByteCount(bitsCount));
+/**
+ * 
+ * Other functions that definitily should go in another file
+ * 
+ * 
+ * 
+ */
+
+// generic type that should be moved somewhere else
+template <typename T>
+concept Null = std::same_as<std::decay_t<T>, std::nullptr_t>;
+
+template <typename Callback, size_t blockSize>
+concept BlockMapper = requires(Callback f, const std::bitset<blockSize>& bytes) {
+    { f(bytes) } -> std::same_as<std::bitset<blockSize>>;
+};
+
+template <typename Callback, size_t blockSize>
+concept IncompleteBlockMapper = 
+    Null<Callback> ||
+    requires(Callback f, const std::bitset<blockSize>& bytes, size_t effectiveBitCount) {
+        { f(bytes, effectiveBitCount) } -> std::same_as<std::bitset<blockSize>>;
+    } ||
+    BlockMapper<Callback, blockSize>;
+
+template <size_t blockSize, BlockMapper<blockSize> BlockMapper, IncompleteBlockMapper<blockSize> IncompleteBlockMapper = std::nullptr_t>
+ByteArray<> mapForEachBlock(
+    ByteSpan<> bytes, 
+    BlockMapper transform, 
+    IncompleteBlockMapper transformRemaining = nullptr
+);
+
 
 #include "bytes.tpp"
+
+// because the content from bits.h was written here before. 
+// TODO: update the includes in every file so that this line can be removed
+#include "bits.h"

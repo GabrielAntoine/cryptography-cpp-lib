@@ -7,6 +7,8 @@
 class DESede {
     public:
         static constexpr uint8_t BLOCK_SIZE = DES::BLOCK_SIZE;
+        static constexpr uint8_t BLOCK_SIZE_BYTES = DES::BLOCK_SIZE_BYTES;
+
         using Block = DES::Block;
         using SecretKey = DESedeSecretKey;
 

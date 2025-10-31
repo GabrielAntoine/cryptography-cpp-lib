@@ -10,6 +10,7 @@ FetchContent_MakeAvailable(Catch2)
 
 add_executable(tests 
     encryption.cpp
+    bytes-bits.cpp
 )
 
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
@@ -18,5 +19,5 @@ target_link_libraries(tests PRIVATE cryptography_cpp_lib)
 include(Catch)
 
 catch_discover_tests(tests
-    EXTRA_ARGS -s
+  ADD_TAGS_AS_LABELS
 )

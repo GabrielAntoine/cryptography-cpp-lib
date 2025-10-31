@@ -4,12 +4,12 @@
 #include "BlockCipherAlgorithm.h"
 
 class DES {
-    // encrypt, decrypt, setKey, ::getBlockSize, mangler
     public:
         static constexpr uint8_t BLOCK_SIZE               = 64;
         static constexpr uint8_t HALF_BLOCK_SIZE          = 32;
         static constexpr uint8_t HALF_BLOCK_EXTENDED_SIZE = 48;
         static constexpr uint8_t SBOX_BLOCK_SIZE          =  6;
+        static constexpr uint8_t BLOCK_SIZE_BYTES         =  8;
 
 
         using Block = std::bitset<BLOCK_SIZE>;

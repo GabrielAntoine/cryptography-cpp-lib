@@ -4,6 +4,7 @@
 #include "ECB.h"
 #include "CBC.h"
 #include "CFB.h"
+#include "OFB.h"
 #include "PKCS5Padding.h"
 #include "NoPadding.h"
 #include "ZeroPadding.h"
@@ -13,8 +14,8 @@
 struct EncryptionFixture {
     ByteArray<15> plainText15 = toByteArrayFromAscii("gabriel le goat");
     ByteArray<24> plainText24 = toByteArrayFromAscii("No icecream for you... !");
-    ByteArray<12> plainText12WithZerosAtTheEnd = toByteArray("4e863c9314ddab3e6f000000");
-    ByteArray<8>  iv64        = toByteArray("0123456789abcdef");
+    ByteArray<12> plainText12WithZerosAtTheEnd = toByteArrayFromHexa("4e863c9314ddab3e6f000000");
+    ByteArray<8>  iv64        = toByteArrayFromHexa("0123456789abcdef");
 };
 
 struct DESFixture : public EncryptionFixture {
@@ -23,7 +24,7 @@ struct DESFixture : public EncryptionFixture {
     DES des;
 
     DESFixture() {
-        ByteArray<DES::SecretKey::KEY_SIZE_BYTES> rawKey = toByteArray("133457799bbcdff1");
+        ByteArray<DES::SecretKey::KEY_SIZE_BYTES> rawKey = toByteArrayFromHexa("133457799bbcdff1");
         
         key = DES::SecretKey(rawKey);
         des.setKey(key);
@@ -35,7 +36,7 @@ struct DESedeFixture : public EncryptionFixture {
     DESede desede;
 
     DESedeFixture() {
-        std::array<std::byte, 24> rawKey = toByteArray("6865667a646e73636a6166706e776665316361357833656d");
+        std::array<std::byte, 24> rawKey = toByteArrayFromHexa("6865667a646e73636a6166706e776665316361357833656d");
 
         key = DESede::SecretKey(rawKey);
         desede.setKey(key);
@@ -134,6 +135,20 @@ TEST_CASE_METHOD(DESFixture, "DES/CFB/NoPadding", "[encryption]") {
     SECTION("With incomplete blocks") {
         auto encrypted = cipher.encrypt(plainText15);
         REQUIRE(toString(encrypted) == "E2897126666FD8259E0F0AAE138B80");
+    
+        auto decrypted = cipher.decrypt(encrypted);
+        REQUIRE(toString(decrypted) == toString(plainText15));
+    }
+}
+
+TEST_CASE_METHOD(DESFixture, "DES/OFB/NoPadding", "[encryption]") {
+    OFB<DES> ofb;
+    ofb.setIV(iv64);
+    BlockCipher cipher(des, ofb, NoPadding());
+
+    SECTION("With incomplete blocks") {
+        auto encrypted = cipher.encrypt(plainText15);
+        REQUIRE(toString(encrypted) == "E2897126666FD8250BCB5A4E0EBED7");
     
         auto decrypted = cipher.decrypt(encrypted);
         REQUIRE(toString(decrypted) == toString(plainText15));

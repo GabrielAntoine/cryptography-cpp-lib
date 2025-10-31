@@ -21,8 +21,8 @@ DES::HalfBlock DES::feistel(const HalfBlock block, SecretKey::RoundKey roundKey)
     // S-Boxes
     HalfBlock sboxedBits;
     for (int i = 0; i < sboxes.size(); i++) {
-        size_t firstBitOfTheBlockIndex = 47 - (i * 6);
-        SboxBlock block = sliceBitset<SBOX_BLOCK_SIZE>(keyifiedBits, firstBitOfTheBlockIndex - 5);
+        size_t firstBitOfTheBlockIndex = i * SBOX_BLOCK_SIZE;
+        SboxBlock block = slice<SBOX_BLOCK_SIZE>(keyifiedBits, firstBitOfTheBlockIndex);
         size_t row      = ((block & SboxBlock(0b100000)) >> 4 | block & SboxBlock(1)).to_ullong();
         size_t column   = (block >> 1 & SboxBlock(0b1111)).to_ullong();
         sboxedBits      = sboxedBits << 4 | HalfBlock(sboxes[i][row][column]);
@@ -35,8 +35,8 @@ DES::HalfBlock DES::feistel(const HalfBlock block, SecretKey::RoundKey roundKey)
 DES::Block DES::run(const Block plainBits, bool encrypt) const {
     // Initial permutation
     const Block initiallyPermutedBytes = permuteBitsByTable(plainBits, initialPermutationTable);
-    HalfBlock leftHalf = sliceBitset<HALF_BLOCK_SIZE>(initiallyPermutedBytes, HALF_BLOCK_SIZE);
-    HalfBlock rightHalf = sliceBitset<HALF_BLOCK_SIZE>(initiallyPermutedBytes);
+    HalfBlock leftHalf = slice<HALF_BLOCK_SIZE>(initiallyPermutedBytes);
+    HalfBlock rightHalf = slice<HALF_BLOCK_SIZE>(initiallyPermutedBytes, HALF_BLOCK_SIZE);
 
     
     
@@ -52,7 +52,7 @@ DES::Block DES::run(const Block plainBits, bool encrypt) const {
     }
     
     // last swap
-    const Block beforeEndBytes = extendBitset<HALF_BLOCK_SIZE>(rightHalf) << 32 | extendBitset<HALF_BLOCK_SIZE>(leftHalf);
+    const Block beforeEndBytes = lpad<HALF_BLOCK_SIZE>(rightHalf) << 32 | lpad<HALF_BLOCK_SIZE>(leftHalf);
     
     // last permutation
     const Block encryptedBytes = permuteBitsByTable(beforeEndBytes, finalPermutationTable);

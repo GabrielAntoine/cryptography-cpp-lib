@@ -24,14 +24,14 @@ void DESSecretKey::calculateRoundKeys() {
 
     for (int i = 0; i < ROUND_COUNT; i++) {
         // Divide the key in two 28 bits parts
-        std::bitset<HALF_KEY_SIZE> leftKeyPart  = sliceBitset<HALF_KEY_SIZE>(baseKey, HALF_KEY_SIZE);
-        std::bitset<HALF_KEY_SIZE> rightKeyPart = sliceBitset<HALF_KEY_SIZE>(baseKey);
+        std::bitset<HALF_KEY_SIZE> leftKeyPart  = slice<HALF_KEY_SIZE>(baseKey);
+        std::bitset<HALF_KEY_SIZE> rightKeyPart = slice<HALF_KEY_SIZE>(baseKey, HALF_KEY_SIZE);
 
         // Left circular shift
         const uint8_t shift = SHIFTS_BY_ROUND[i];
         leftKeyPart = rotl(leftKeyPart, shift);
         rightKeyPart = rotl(rightKeyPart, shift);
-        baseKey = (extendBitset<HALF_KEY_SIZE>(leftKeyPart) << HALF_KEY_SIZE) | extendBitset<HALF_KEY_SIZE>(rightKeyPart);
+        baseKey = (lpad<HALF_KEY_SIZE>(leftKeyPart) << HALF_KEY_SIZE) | lpad<HALF_KEY_SIZE>(rightKeyPart);
 
         // Compressed permutation
         RoundKey roundKey = permuteBitsByTable(baseKey, pc2Table);
