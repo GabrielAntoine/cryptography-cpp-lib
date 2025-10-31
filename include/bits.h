@@ -26,4 +26,8 @@ template<size_t size>
 auto rotr(const std::bitset<size> &bitset, const size_t shift)
 -> std::bitset<size>;
 
+template <size_t size>
+auto increment(std::bitset<size> &bits) 
+-> std::bitset<size>&;
+
 #include "bits.tpp"

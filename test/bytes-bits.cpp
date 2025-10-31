@@ -28,6 +28,12 @@ TEST_CASE("Bits methods", "[utils:bits]") {
         REQUIRE(pad<0, 3>(byte)             == rpad<3>(byte));
         REQUIRE(pad<3, 3>(byte).to_string() == "00011101101000");
     }
+
+    SECTION("increment") {
+        REQUIRE(increment(byte).to_string() == "11101110");
+        REQUIRE(increment(byte).to_string() == "11101111");
+        REQUIRE(increment(byte).to_string() == "11110000");
+    }
 }
 
 TEST_CASE("mapForEachBlock", "[utils:bytes]") {

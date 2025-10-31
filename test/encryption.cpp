@@ -5,6 +5,7 @@
 #include "CBC.h"
 #include "CFB.h"
 #include "OFB.h"
+#include "CTR.h"
 #include "PKCS5Padding.h"
 #include "NoPadding.h"
 #include "ZeroPadding.h"
@@ -149,6 +150,20 @@ TEST_CASE_METHOD(DESFixture, "DES/OFB/NoPadding", "[encryption]") {
     SECTION("With incomplete blocks") {
         auto encrypted = cipher.encrypt(plainText15);
         REQUIRE(toString(encrypted) == "E2897126666FD8250BCB5A4E0EBED7");
+    
+        auto decrypted = cipher.decrypt(encrypted);
+        REQUIRE(toString(decrypted) == toString(plainText15));
+    }
+}
+
+TEST_CASE_METHOD(DESFixture, "DES/CTR/NoPadding", "[encryption]") {
+    CTR<DES> ctr;
+    ctr.setIV(iv64);
+    BlockCipher cipher(des, ctr, NoPadding());
+
+    SECTION("With incomplete blocks") {
+        auto encrypted = cipher.encrypt(plainText15);
+        REQUIRE(toString(encrypted) == "E2897126666FD8257D23C36889CA13");
     
         auto decrypted = cipher.decrypt(encrypted);
         REQUIRE(toString(decrypted) == toString(plainText15));

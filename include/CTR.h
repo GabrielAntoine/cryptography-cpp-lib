@@ -4,7 +4,7 @@
 #include "BlockCipherMode.h"
 
 template <BlockCipherAlgorithm TAlgorithm>
-class OFB {
+class CTR {
 public:
     using Algorithm   = TAlgorithm;
     using IV          = ByteArray<toByteCount(Algorithm::BLOCK_SIZE)>;
@@ -21,7 +21,7 @@ public:
     ByteArray<> encrypt(ByteSpan<> bytes) const;
     ByteArray<> decrypt(ByteSpan<> bytes) const;
 
-    static_assert(BlockCipherMode<OFB<Algorithm>>);
+    static_assert(BlockCipherMode<CFB<Algorithm>>);
 };
 
-#include "OFB.tpp"
+#include "CTR.tpp"

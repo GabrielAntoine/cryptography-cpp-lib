@@ -61,3 +61,15 @@ auto rotr(const std::bitset<size> &bitset, const size_t shift) -> std::bitset<si
 
     return (bitset << localShift) | (bitset << (size - localShift));
 }
+
+template <size_t size>
+auto increment(std::bitset<size> &bits) -> std::bitset<size>& {
+    bool hasCarry = true;
+
+    for (size_t i = 0; i < size && hasCarry; ++i) {
+        hasCarry = bits[i];
+        bits.flip(i);
+    }
+
+    return bits;
+}

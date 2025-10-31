@@ -4,8 +4,6 @@ add_library(cryptography_cpp_lib STATIC
     DES/DESSecretKey.cpp
     DESede/DESedeSecretKey.cpp
     
-    paddings/PKCS5Padding.cpp
-
     utils/bytes_stream.cpp
     utils/bytes.cpp
 )

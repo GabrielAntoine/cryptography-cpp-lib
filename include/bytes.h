@@ -113,11 +113,11 @@ concept IncompleteBlockMapper =
     } ||
     BlockMapper<Callback, blockSize>;
 
-template <size_t blockSize, BlockMapper<blockSize> BlockMapper, IncompleteBlockMapper<blockSize> IncompleteBlockMapper = std::nullptr_t>
+template <size_t blockSize, BlockMapper<blockSize> _BlockMapper, IncompleteBlockMapper<blockSize> _IncompleteBlockMapper = std::nullptr_t>
 ByteArray<> mapForEachBlock(
     ByteSpan<> bytes, 
-    BlockMapper transform, 
-    IncompleteBlockMapper transformRemaining = nullptr
+    _BlockMapper transform, 
+    _IncompleteBlockMapper transformRemaining = nullptr
 );
 
 
