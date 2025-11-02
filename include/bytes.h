@@ -90,6 +90,20 @@ auto toByteArrayFromAscii(const char(&ascii)[charSize]) -> ByteArray<charSize - 
 
 /**
  * 
+ * Operators
+ * 
+ * 
+ * 
+ */
+
+template <size_t size>
+ByteArray<size> operator^(ByteSpan<size> a, ByteSpan<size> b);
+
+template <size_t size>
+ByteArray<size> rotl(ByteSpan<size> a, size_t shift);
+
+/**
+ * 
  * Other functions that definitily should go in another file
  * 
  * 

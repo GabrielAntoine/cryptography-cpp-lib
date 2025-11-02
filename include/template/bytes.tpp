@@ -92,6 +92,30 @@ ByteArray<charSize - 1> toByteArrayFromAscii(const char(&ascii)[charSize]) {
     return output;
 }
 
+template <size_t size>
+ByteArray<size> operator^(ByteSpan<size> a, ByteSpan<size> b) {
+    ByteArray<size> output;
+
+    for (size_t i = 0; i < size; i++) {
+        output[i] = a[i] ^ b[i];
+    }
+
+    return output;
+}
+
+template <size_t size>
+ByteArray<size> rotl(ByteSpan<size> bytes, size_t shift) {
+    size_t localShift = shift % size;
+    ByteArray<size> output;
+
+    for (int i = 0; i < size; i++) {
+        size_t shiftedIndex = (i + size - shift) % size;
+        output[shiftedIndex] = bytes[i];
+    }
+
+    return output;
+}
+
 template <size_t blockSize, BlockMapper<blockSize> _BlockMapper, IncompleteBlockMapper<blockSize> _IncompleteBlockMapper>
 ByteArray<> mapForEachBlock(
     ByteSpan<> bytes, 

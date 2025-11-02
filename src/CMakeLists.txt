@@ -6,6 +6,7 @@ add_library(cryptography_cpp_lib STATIC
     
     utils/bytes_stream.cpp
     utils/bytes.cpp
+    utils/galois.cpp
 )
 
 target_include_directories(cryptography_cpp_lib 

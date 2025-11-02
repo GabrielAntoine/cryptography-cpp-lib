@@ -2,6 +2,7 @@
 
 #include "bytes.h"
 #include "bytes_stream.h"
+#include "galois.h"
 
 TEST_CASE("Bits methods", "[utils:bits]") {
     std::bitset<8> byte(0b11101101);
@@ -56,5 +57,51 @@ TEST_CASE("mapForEachBlock", "[utils:bytes]") {
         });
     
         REQUIRE(toString(result) == "FEDCBA9876");
+    }
+}
+
+TEST_CASE("multiplication in GF(256)", "[utils:bytes]") {
+    using b = std::byte;
+
+    SECTION("By 2") {
+        REQUIRE(Galois256::multiply(b(  1), b(  2)) == b(  2));
+        REQUIRE(Galois256::multiply(b(128), b(  2)) == b( 27));
+        REQUIRE(Galois256::multiply(b( 87), b(  2)) == b(174));
+        REQUIRE(Galois256::multiply(b(193), b(  2)) == b(153));
+    }
+
+    SECTION("By 3") {
+        REQUIRE(Galois256::multiply(b(  1), b(  3)) == b(  3));
+        REQUIRE(Galois256::multiply(b( 87), b(  3)) == b(249));
+        REQUIRE(Galois256::multiply(b(131), b(  3)) == b(158));
+        REQUIRE(Galois256::multiply(b(193), b(  3)) == b( 88));
+    }
+
+    SECTION("By 9") {
+        REQUIRE(Galois256::multiply(b(  1), b(  9)) == b(  9));
+        REQUIRE(Galois256::multiply(b( 87), b(  9)) == b(217));
+        REQUIRE(Galois256::multiply(b(131), b(  9)) == b(247));
+        REQUIRE(Galois256::multiply(b(193), b(  9)) == b(147));
+    }
+
+    SECTION("By 11") {
+        REQUIRE(Galois256::multiply(b(  1), b( 11)) == b( 11));
+        REQUIRE(Galois256::multiply(b( 87), b( 11)) == b(119));
+        REQUIRE(Galois256::multiply(b(131), b( 11)) == b(234));
+        REQUIRE(Galois256::multiply(b(193), b( 11)) == b( 10));
+    }
+
+    SECTION("By 13") {
+        REQUIRE(Galois256::multiply(b(  1), b( 13)) == b( 13));
+        REQUIRE(Galois256::multiply(b( 87), b( 13)) == b(158));
+        REQUIRE(Galois256::multiply(b(131), b( 13)) == b(205));
+        REQUIRE(Galois256::multiply(b(193), b( 13)) == b(186));
+    }
+
+    SECTION("By 14") {
+        REQUIRE(Galois256::multiply(b(  1), b( 14)) == b( 14));
+        REQUIRE(Galois256::multiply(b( 87), b( 14)) == b(103));
+        REQUIRE(Galois256::multiply(b(131), b( 14)) == b( 83));
+        REQUIRE(Galois256::multiply(b(193), b( 14)) == b(226));
     }
 }
