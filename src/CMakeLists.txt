@@ -5,7 +5,6 @@ add_library(cryptography_cpp_lib STATIC
     DESede/DESedeSecretKey.cpp
     
     utils/bytes_stream.cpp
-    utils/bytes.cpp
     utils/galois.cpp
 )
 

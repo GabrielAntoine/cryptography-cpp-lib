@@ -16,8 +16,6 @@ ByteArray<> CTR<TAlgorithm>::encrypt(ByteSpan<> bytes) const {
     typename TAlgorithm::Block currentIv = toBitset(IVSpan(iv));
 
     auto ctrTransformation = [this, &currentIv](TAlgorithm::Block currentBlock) {
-        std::clog << "iv = " << currentIv << std::endl;
-
         typename TAlgorithm::Block encrypted = algorithm.encrypt(currentIv) ^ currentBlock;
         increment(currentIv);
 

@@ -34,6 +34,17 @@ std::bitset<bitsetSize> toBitset(ByteSpan<> &bytes) {
     return bitset;
 }
 
+template <typename IntType>
+ByteArray<sizeof(IntType)> toByteArray(const IntType n) {
+    ByteArray<sizeof n> output;
+
+    for (int i = sizeof n - 1; i >= 0; i--) {
+        output[sizeof n - i - 1] = std::byte((n >> (CHAR_BIT * i)) & UINT8_MAX);
+    }
+
+    return output;
+}
+
 template<size_t bitsCount>
 ByteArray<toByteCount(bitsCount)> toByteArray(const std::bitset<bitsCount> &bitset) {
     constexpr size_t bytesCount = toByteCount(bitsCount);
@@ -115,6 +126,24 @@ ByteArray<size> rotl(ByteSpan<size> bytes, size_t shift) {
 
     return output;
 }
+
+inline ByteArray<> concatenate(ByteSpan<> a, ByteSpan<> b) {
+    ByteArray<> concatenated(a.size() + b.size());
+    std::copy(a.begin(), a.end(), concatenated.begin());
+    std::copy(b.begin(), b.end(), concatenated.begin() + a.size());
+    return concatenated;
+}
+
+template <size_t size1, size_t size2>
+inline ByteArray<size1 + size2> concatenate(ByteSpan<size1> a, ByteSpan<size2> b) {
+    static_assert(size1 != std::dynamic_extent && size2 != std::dynamic_extent);
+
+    ByteArray<size1 + size2> concatenated;
+    std::copy(a.begin(), a.end(), concatenated.begin());
+    std::copy(b.begin(), b.end(), concatenated.begin() + size1);
+    return concatenated;
+}
+
 
 template <size_t blockSize, BlockMapper<blockSize> _BlockMapper, IncompleteBlockMapper<blockSize> _IncompleteBlockMapper>
 ByteArray<> mapForEachBlock(

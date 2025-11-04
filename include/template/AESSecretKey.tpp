@@ -73,7 +73,7 @@ void AESSecretKey<keySize>::calculateRoundKeys() {
         if (i % WORD_PER_KEY == 0) {
             previousWord = subWord(rotWord(previousWord));
             previousWord.front() ^= rcon;
-            rcon = Galois256::multiplyBy2(rcon);
+            rcon = GF8::multiplyBy2(rcon);
         } else if constexpr (KEY_SIZE == 256) { // AES-256 specification
             if (i % (WORD_PER_KEY / 2) == 0) {
                 previousWord = subWord(previousWord);

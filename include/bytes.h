@@ -71,7 +71,8 @@ auto toBitset(ByteSpan<> &bytes) -> std::bitset<bitsetSize>;
  * 
  */
 
-auto toByteArray(const size_t n) -> ByteArray<>;
+template<typename IntType>
+auto toByteArray(const IntType n) -> ByteArray<sizeof(IntType)>;
 
 template<size_t bitsCount>
 auto toByteArray(const std::bitset<bitsCount> &bitset) -> ByteArray<toByteCount(bitsCount)>;
@@ -101,6 +102,12 @@ ByteArray<size> operator^(ByteSpan<size> a, ByteSpan<size> b);
 
 template <size_t size>
 ByteArray<size> rotl(ByteSpan<size> a, size_t shift);
+
+inline ByteArray<> concatenate(ByteSpan<> a, ByteSpan<> b);
+
+template <size_t size1, size_t size2>
+inline ByteArray<size1 + size2> concatenate(ByteSpan<size1> a, ByteSpan<size2> b);
+
 
 /**
  * 

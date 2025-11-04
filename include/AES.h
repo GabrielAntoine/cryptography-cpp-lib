@@ -35,10 +35,10 @@ class AES {
     public:
         void  setKey(const SecretKey &key);
         Block encrypt(const Block &plaintext) const;
-        Block decrypt(const Block &ciphertext) const;    
+        Block decrypt(const Block &ciphertext) const; 
+
+    static_assert(BlockCipherAlgorithm<AES<keySize>>);
 };
 
-// 128 is a placeholder just so that the static_assert can run without a template instanciation
-static_assert(BlockCipherAlgorithm<AES<128>>);
 
 #include "AES.tpp"

@@ -13,8 +13,9 @@ public:
 
     ByteArray<> pad(ByteArray<> bytes) const;
     ByteArray<> unpad(ByteArray<> bytes) const;
+    
+    static_assert(BlockCipherPadding<PKCS7Padding<blockSize>>);
 };
 
-static_assert(BlockCipherPadding<PKCS7Padding<128>>);
 
 #include "PKCS7Padding.tpp"

@@ -87,7 +87,7 @@ void AES<keySize>::mixColumns(Matrix &matrix) const {
                 std::byte mixColumnsMatrixByte = mixColumnsMatrix[matrixRow][k];
                 std::byte wordByte = matrixAt(matrix, word, k);
 
-                processingColumn[matrixRow] ^= Galois256::multiply(mixColumnsMatrixByte, wordByte);
+                processingColumn[matrixRow] ^= GF8::multiply(mixColumnsMatrixByte, wordByte);
             }
         }
         
@@ -138,7 +138,6 @@ AES<keySize>::Block AES<keySize>::decrypt(const Block &plaintext) const {
         substituteBytes<AES_TABLES::INV_SBOX>(matrix);
         addRoundKey(matrix, i);
         mixColumns<AES_TABLES::INV_MIX_COLUMNS_MATRIX>(matrix);
-        // std::cout << "istart : " << matrix << std::endl;
     }
 
     // Last round

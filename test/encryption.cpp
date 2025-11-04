@@ -6,6 +6,7 @@
 #include "CFB.h"
 #include "OFB.h"
 #include "CTR.h"
+#include "GCM.h"
 #include "PKCS5Padding.h"
 #include "NoPadding.h"
 #include "ZeroPadding.h"
@@ -20,6 +21,7 @@ struct EncryptionFixture {
     ByteArray<34> plainText34 = toByteArrayFromAscii("No mind to think, to will to break");
     ByteArray<12> plainText12WithZerosAtTheEnd = toByteArrayFromHexa("4e863c9314ddab3e6f000000");
     ByteArray<8>  iv64        = toByteArrayFromHexa("0123456789abcdef");
+    ByteArray<12> iv96        = toByteArrayFromHexa("0123456789abcdef10111213");
 };
 
 struct DESFixture : public EncryptionFixture {
@@ -283,5 +285,16 @@ TEST_CASE_METHOD(AESFixture, "AES encryption/decryption", "[encryption][aes]") {
         
         auto decrypted = cipher.decrypt(ciphertext);
         REQUIRE(toString(decrypted) == toString(plainText34));
+    }
+}
+
+TEST_CASE_METHOD(AESFixture, "AES-GCM", "[encryption][aes]") {
+    SECTION("96 bits IV - No AAD") {
+        GCM<128> gcm;
+        gcm.setIV(iv96);
+        BlockCipher cipher(aes128, gcm, NoPadding());
+
+        auto ciphertext = cipher.encrypt(plainText34);
+        REQUIRE(toString(ciphertext) == "A7794AF6B30486E50D9C74B0105EDC2B6D0F08EF28E28ADBF6913FC6F3AC2736DE1886FB2183A69A5E1BB0FE88C97F207163");
     }
 }

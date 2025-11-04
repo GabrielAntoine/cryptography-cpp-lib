@@ -12,8 +12,9 @@ public:
 
     ByteArray<> pad(ByteArray<> bytes) const;
     ByteArray<> unpad(ByteArray<> bytes) const;
+
+    static_assert(BlockCipherPadding<ZeroPadding<blockSize>>);
 };
 
-static_assert(BlockCipherPadding<ZeroPadding<64>>); // 64 is an arbitrary random number
 
 #include "ZeroPadding.tpp"

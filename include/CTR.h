@@ -10,7 +10,7 @@ public:
     using IV          = ByteArray<toByteCount(Algorithm::BLOCK_SIZE)>;
     using IVSpan      = ByteSpan<toByteCount(Algorithm::BLOCK_SIZE)>;
 
-private:
+protected:
     Algorithm algorithm;
     IV iv;
     
@@ -21,7 +21,7 @@ public:
     ByteArray<> encrypt(ByteSpan<> bytes) const;
     ByteArray<> decrypt(ByteSpan<> bytes) const;
 
-    static_assert(BlockCipherMode<CFB<Algorithm>>);
+    static_assert(BlockCipherMode<CTR<Algorithm>>);
 };
 
 #include "CTR.tpp"

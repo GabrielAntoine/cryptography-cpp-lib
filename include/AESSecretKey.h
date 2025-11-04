@@ -55,8 +55,9 @@ private:
     Word rotWord(const Word& word) const;
     Word subWord(const Word& word) const;
     void calculateRoundKeys();
+
+    static_assert(::Key<AESSecretKey<keySize>>);
 };
 
-static_assert(Key<AESSecretKey<128>>);
 
 #include "AESSecretKey.tpp"

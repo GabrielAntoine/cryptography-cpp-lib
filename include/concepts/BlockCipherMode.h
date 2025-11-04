@@ -4,7 +4,7 @@
 #include "BlockCipherAlgorithm.h"
 
 template <typename TMode>
-concept BlockCipherMode = requires(TMode mode, ByteSpan<> bytes, typename TMode::Algorithm algorithm) {
+concept BlockCipherMode = requires(TMode &mode, ByteSpan<> bytes, typename TMode::Algorithm algorithm) {
     requires BlockCipherAlgorithm<typename TMode::Algorithm>;
 
     { mode.setAlgorithm(algorithm) } -> std::same_as<void>;
