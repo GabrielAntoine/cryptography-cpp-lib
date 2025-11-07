@@ -22,6 +22,9 @@ struct EncryptionFixture {
     ByteArray<12> plainText12WithZerosAtTheEnd = toByteArrayFromHexa("4e863c9314ddab3e6f000000");
     ByteArray<8>  iv64        = toByteArrayFromHexa("0123456789abcdef");
     ByteArray<12> iv96        = toByteArrayFromHexa("0123456789abcdef10111213");
+    ByteArray<16> iv128       = toByteArrayFromHexa("0123456789abcdef1011121314151617");
+    ByteArray<20> iv160       = toByteArrayFromHexa("0123456789abcdef101112131415161718191a1b");
+    ByteArray<51> aad51       = toByteArrayFromAscii("This is an example of additional authenticated data");
 };
 
 struct DESFixture : public EncryptionFixture {
@@ -289,12 +292,72 @@ TEST_CASE_METHOD(AESFixture, "AES encryption/decryption", "[encryption][aes]") {
 }
 
 TEST_CASE_METHOD(AESFixture, "AES-GCM", "[encryption][aes]") {
+    GCM<128> gcm;
+
     SECTION("96 bits IV - No AAD") {
-        GCM<128> gcm;
         gcm.setIV(iv96);
         BlockCipher cipher(aes128, gcm, NoPadding());
 
         auto ciphertext = cipher.encrypt(plainText34);
-        REQUIRE(toString(ciphertext) == "A7794AF6B30486E50D9C74B0105EDC2B6D0F08EF28E28ADBF6913FC6F3AC2736DE1886FB2183A69A5E1BB0FE88C97F207163");
+        REQUIRE(ciphertext.size() == plainText34.size() + 16);
+
+        ByteSpan<34> trueCiphertext(ciphertext.begin(), ciphertext.end() - 16);
+        ByteSpan<16> tag(ciphertext.end() - 16, ciphertext.end());
+
+        // Test encryption
+        REQUIRE(toString(trueCiphertext) == "A7794AF6B30486E50D9C74B0105EDC2B6D0F08EF28E28ADBF6913FC6F3AC2736DE18");
+        REQUIRE(toString(tag)            == "86FB2183A69A5E1BB0FE88C97F207163");
+
+        SECTION("Decryption works fine") {
+            ByteArray<> decrypted;
+            REQUIRE_NOTHROW(decrypted = cipher.decrypt(ciphertext));
+            REQUIRE(toString(decrypted) == toString(plainText34));
+        }
+
+        SECTION("Tag mismatch") {
+            ciphertext[4] = std::byte(0); // altering integrity
+            REQUIRE_THROWS(cipher.decrypt(ciphertext));
+        }
+    }
+
+    SECTION("96 bits IV - AAD") {
+        gcm.setIV(iv96);
+        gcm.setAAD(aad51);
+        BlockCipher cipher(aes128, gcm, NoPadding());
+
+        auto ciphertext = cipher.encrypt(plainText34);
+        REQUIRE(toString(ciphertext) == "A7794AF6B30486E50D9C74B0105EDC2B6D0F08EF28E28ADBF6913FC6F3AC2736DE186474BD067DCD34E73FC303646FBE289C");
+        
+        ByteArray<> decrypted;
+        REQUIRE_NOTHROW(decrypted = cipher.decrypt(ciphertext));
+        REQUIRE(toString(decrypted) == toString(plainText34));
+    }
+
+    SECTION("128 bits IV - AAD") {
+        std::cout << ByteArrayDisplayMode::HEXA;
+        gcm.setIV(iv128);
+        gcm.setAAD(aad51);
+        BlockCipher cipher(aes128, gcm, NoPadding());
+
+        auto ciphertext = cipher.encrypt(plainText34);
+        REQUIRE(toString(ciphertext) == "DFA25B13D64C7701D4E6B01A3CE76AA1E36FB1BB660B1C0BADA5F8D697388D3B31E651A2603866D28CB910581BFC74B177D1");
+        
+        ByteArray<> decrypted;
+        REQUIRE_NOTHROW(decrypted = cipher.decrypt(ciphertext));
+        REQUIRE(toString(decrypted) == toString(plainText34));
+    }
+
+    SECTION("160 bits IV - AAD") {
+        std::cout << ByteArrayDisplayMode::HEXA;
+        gcm.setIV(iv160);
+        gcm.setAAD(aad51);
+        BlockCipher cipher(aes128, gcm, NoPadding());
+
+        auto ciphertext = cipher.encrypt(plainText34);
+        REQUIRE(toString(ciphertext) == "4BDC111EC66F969153583F3BE202236A626F0FB001D43277217FC7CEA4C4C0E6E3B93BB0ABF99BB986FC574DDD6DF1AB9A64");
+    
+        ByteArray<> decrypted;
+        REQUIRE_NOTHROW(decrypted = cipher.decrypt(ciphertext));
+        REQUIRE(toString(decrypted) == toString(plainText34));
     }
 }
