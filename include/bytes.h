@@ -8,12 +8,13 @@
 #include <bitset>
 #include <type_traits>
 #include <functional>
+#include <climits>
 
 /**
- * 
+ *
  * Types
- * 
- * 
+ *
+ *
  */
 
 template <size_t _Extent = std::dynamic_extent>
@@ -35,10 +36,10 @@ using BitArray = std::vector<bool>;
 
 
 /**
- * 
+ *
  * Constexpr functions
- * 
- * 
+ *
+ *
  */
 
 constexpr size_t toByteCount(size_t bitCount) {
@@ -51,10 +52,10 @@ constexpr size_t toBitCount(size_t byteCount) {
 
 
 /**
- * 
+ *
  * Functions to convert to std::bitset
- * 
- * 
+ *
+ *
  */
 
 template<size_t size>
@@ -65,10 +66,10 @@ auto toBitset(ByteSpan<> &bytes) -> std::bitset<bitsetSize>;
 
 
 /**
- * 
- * Functions to convert to static or dynamic ByteArray 
- * 
- * 
+ *
+ * Functions to convert to static or dynamic ByteArray
+ *
+ *
  */
 
 template<typename IntType>
@@ -90,11 +91,11 @@ template<size_t charSize>
 auto toByteArrayFromAscii(const char(&ascii)[charSize]) -> ByteArray<charSize - 1>;
 
 /**
- * 
+ *
  * Operators
- * 
- * 
- * 
+ *
+ *
+ *
  */
 
 template <size_t size>
@@ -110,11 +111,11 @@ inline ByteArray<size1 + size2> concatenate(ByteSpan<size1> a, ByteSpan<size2> b
 
 
 /**
- * 
+ *
  * Other functions that definitily should go in another file
- * 
- * 
- * 
+ *
+ *
+ *
  */
 
 // generic type that should be moved somewhere else
@@ -127,7 +128,7 @@ concept BlockMapper = requires(Callback f, const std::bitset<blockSize>& bytes) 
 };
 
 template <typename Callback, size_t blockSize>
-concept IncompleteBlockMapper = 
+concept IncompleteBlockMapper =
     Null<Callback> ||
     requires(Callback f, const std::bitset<blockSize>& bytes, size_t effectiveBitCount) {
         { f(bytes, effectiveBitCount) } -> std::same_as<std::bitset<blockSize>>;
@@ -136,14 +137,14 @@ concept IncompleteBlockMapper =
 
 template <size_t blockSize, BlockMapper<blockSize> _BlockMapper, IncompleteBlockMapper<blockSize> _IncompleteBlockMapper = std::nullptr_t>
 ByteArray<> mapForEachBlock(
-    ByteSpan<> bytes, 
-    _BlockMapper transform, 
+    ByteSpan<> bytes,
+    _BlockMapper transform,
     _IncompleteBlockMapper transformRemaining = nullptr
 );
 
 
 #include "bytes.tpp"
 
-// because the content from bits.h was written here before. 
+// because the content from bits.h was written here before.
 // TODO: update the includes in every file so that this line can be removed
 #include "bits.h"
