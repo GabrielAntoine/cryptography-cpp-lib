@@ -21,6 +21,71 @@ This project uses only templates and [C++20 concepts](https://en.cppreference.co
 
 The drawback is that most files are templates, aka hard syntax and slow compile time.
 
+## Examples
+
+Here are a few examples to show you how it works. For more examples, refer to the [tests](/test/encryption.cpp)
+
+> **Note** : The type `ByteArray<N>` is an alias of `std::array<std::byte, N>` or `std::vector<std::byte>` if `N` is `std::dynamic_extent`
+
+### DES/CBC/PKCS5Padding
+
+```cpp
+ByteArray<15> plainText = toByteArrayFromAscii("gabriel le goat");
+ByteArray<8> iv = toByteArrayFromHexa("0123456789abcdef");
+ByteArray<DES::SecretKey::KEY_SIZE_BYTES> rawKey = toByteArrayFromHexa("133457799bbcdff1");
+
+DES des;
+CBC<DES> cbc;
+PKCS5Padding padding;
+
+des.setKey(DES::SecretKey(rawKey))
+cbc.setIV(iv);
+
+// Generic abstraction that expects :
+// 1. An encryption algorithm
+// 2. A mode algorithm
+// 3. A padding algorithm
+BlockCipher cipher(des, cbc, padding);
+
+// Output is : 0377B18F0ACCCD1A87F3491E478F4B4C
+auto encrypted = cipher.encrypt(plainText);
+std::cout << toString(encrypted) << '\n';
+
+// Output is : true
+auto decrypted = cipher.decrypt(encrypted);
+std::cout << (toString(encrypted) == toString(plainText))<< '\n';
+```
+
+### AES/GCM
+
+```cpp
+ByteArray<16> rawKey = toByteArrayFromHexa("000102030405060708090a0b0c0d0e0f");
+ByteArray<16> iv = toByteArrayFromHexa("0123456789abcdef1011121314151617");
+ByteArray<51> aad = toByteArrayFromAscii("This is an example of additional authenticated data");
+ByteArray<34> plainText = toByteArrayFromAscii("No mind to think, to will to break");
+
+AES<128> aes;
+GCM<128> gcm;
+
+// It won't compile if the AES<N> object and the AESSecretKey<N>
+// object don't have the same value for N. It won't also compile
+// if N is anything other than 128, 192 and 256, in accordance
+// with the AES specification. Same for the GCM<N> object.
+aes.setKey(AESSecretKey<128>(rawKey));
+gcm.setIV(iv);
+gcm.setAAD(aad);
+
+BlockCipher cipher(aes128, gcm, NoPadding());
+
+// Output is : DFA25B13D64C7701D4E6B01A3CE76AA1E36FB1BB660B1C0BADA5F8D697388D3B31E651A2603866D28CB910581BFC74B177D1
+auto encrypted = cipher.encrypt(plainText);
+std::cout << toString(encrypted) << '\n';
+
+// Output is : true
+auto decrypted = cipher.decrypt(encrypted);
+std::cout << (toString(encrypted) == toString(plainText))<< '\n';
+```
+
 ## Project structure
 
 This project uses [CMake](https://cmake.org/) for build management and [Catch2](https://catch2.org/) for testing.
